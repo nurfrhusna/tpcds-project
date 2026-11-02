@@ -1,10 +1,10 @@
 
 
-\# TPC-DS Benchmarking with ClickHouse
+# TPC-DS Benchmarking with ClickHouse
 
 
 
-\## 1. Project Overview
+## 1. Project Overview
 
 
 
@@ -44,7 +44,7 @@ and collection of performance statistics.
 
 
 
-\## 3. Project Structure
+## 3. Project Structure
 
 
 
@@ -82,7 +82,7 @@ are excluded from Git.
 
 
 
-\## 4. Prerequisites
+## 4. Prerequisites
 
 
 
@@ -98,7 +98,7 @@ are excluded from Git.
 
 
 
-\## 5. Start ClickHouse
+## 5. Start ClickHouse
 
 
 
@@ -138,7 +138,7 @@ container without checking the container and volume names.
 
 
 
-\## 6. Initialize the Database
+## 6. Initialize the Database
 
 
 
@@ -184,7 +184,7 @@ validated on a clean teammate installation.
 
 
 
-\## 7. Generate the TPC-DS Dataset
+## 7. Generate the TPC-DS Dataset
 
 
 
@@ -232,7 +232,7 @@ for a fresh machine are still being documented.
 
 
 
-\## 8. Import Data into ClickHouse
+## 8. Import Data into ClickHouse
 
 
 
@@ -302,7 +302,7 @@ established through measurements.
 
 
 
-\## 10. Run the Automated Benchmark
+## 10. Run the Automated Benchmark
 
 
 
@@ -388,7 +388,7 @@ or physical disk throughput.
 
 
 
-\## 12. Current Project Status
+## 12. Current Project Status
 
 
 
@@ -452,7 +452,7 @@ fully compliant TPC-DS benchmark scores.
 
 
 
-\## 14. References
+## 14. References
 
 
 
