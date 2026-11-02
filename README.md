@@ -66,8 +66,6 @@ The following tools are required:
 
 Docker Desktop must be running before starting ClickHouse.
 
-The setup instructions below are intended for a fresh environment. They have not yet been independently validated on another team member's computer.
-
 ## 5. Start ClickHouse
 
 From the project root directory, run:
