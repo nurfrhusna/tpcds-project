@@ -1,0 +1,33 @@
+
+# Generated TPC-DS dataset
+data/
+
+# Downloaded TPC-DS toolkit
+DSGen-software-code-4.0.0/
+
+# Local backup and old SQL files
+*.backup.py
+*.backup.sql
+create_tables.sql
+init.sql
+
+# Python temporary files
+__pycache__/
+*.pyc
+.venv/
+
+# Temporary and editor files
+*.tmp
+*.log
+.vscode/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Local benchmark measurements
+results/*.csv
+
+# Extracted archive metadata
+.MACOSX/
+__MACOSX/

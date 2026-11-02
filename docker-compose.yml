@@ -1,0 +1,14 @@
+
+services:
+  clickhouse:
+    image: clickhouse/clickhouse-server:26.10.3.7
+    container_name: tpcds-clickhouse
+    restart: unless-stopped
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+
+volumes:
+  clickhouse_data:
