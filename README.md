@@ -28,27 +28,19 @@ and collection of performance statistics.
 
 
 
-\## 2. Technology Stack
 
-
+## 2. Technology Stack
 
 | Component | Technology |
-
-|-----------|------------|
-
+|---|---|
 | Database | ClickHouse 26.10.3.7 |
-
 | Containerization | Docker Desktop / Docker Compose |
-
 | Programming | Python 3.12 |
-
 | Benchmark | TPC-DS 4.0.0 |
-
 | Dataset | Scale Factor 1 (SF1) |
-
-| Database name | tpcds\_test |
-
+| Database name | `tpcds_test` |
 | Storage engine | MergeTree |
+
 
 
 
