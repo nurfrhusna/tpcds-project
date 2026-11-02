@@ -51,45 +51,25 @@ and collection of performance statistics.
 ```text
 
 tpcds-project/
-
 ├── docker-compose.yml
-
 ├── README.md
-
 ├── .gitignore
-
 ├── schema/
-
 │   └── create\_tables\_nullable.sql
-
 ├── scripts/
-
 │   ├── init\_database.ps1
-
 │   ├── bulk\_import.py
-
 │   └── run\_benchmark.py
-
 ├── queries/
-
 │   ├── query\_03.sql
-
 │   ├── query\_07.sql
-
 │   ├── query\_31.sql
-
 │   ├── query\_47.sql
-
 │   ├── query\_64.sql
-
 │   └── query\_82.sql
-
 ├── data/
-
 │   └── (generated TPC-DS .dat files)
-
 └── results/
-
 &#x20;   └── (generated benchmark CSV files)
 
 ```
@@ -294,24 +274,16 @@ intend to delete and reload the existing table contents.
 
 
 
-\## 9. Selected Benchmark Queries
 
-
+## 9. Selected Benchmark Queries
 
 | Query | Workload Focus |
-
-|-------|----------------|
-
+|---|---|
 | Q3 | Basic aggregation |
-
 | Q7 | Star-schema analytics |
-
 | Q31 | Cross-channel analysis |
-
 | Q47 | Analytical/window operations |
-
 | Q64 | Complex multi-stage analysis |
-
 | Q82 | Data-access-intensive candidate |
 
 
@@ -386,23 +358,17 @@ results/benchmark\_YYYYMMDD\_HHMMSS.csv
 
 
 
-\## 11. Performance Metrics
 
-
+## 11. Performance Metrics
 
 | Metric | Description |
+|---|---|
+| `execution_ms` | Server-reported query duration in milliseconds |
+| `read_rows` | Number of rows read by ClickHouse |
+| `read_bytes` | Logical bytes read by ClickHouse |
+| `result_rows` | Number of output rows |
+| `memory_usage_bytes` | Reported peak query memory usage |
 
-|--------|-------------|
-
-| execution\_ms | Server-reported query duration in milliseconds |
-
-| read\_rows | Number of rows read by ClickHouse |
-
-| read\_bytes | Logical bytes read by ClickHouse |
-
-| result\_rows | Number of output rows |
-
-| memory\_usage\_bytes | Reported peak query memory usage |
 
 
 
