@@ -90,7 +90,6 @@ The Docker Compose configuration uses the ClickHouse image version `26.10.3.7` a
 
 **Important:** The Docker Compose setup is intended for a fresh environment. Do not run it to replace an existing ClickHouse container without checking the container and volume names.
 
-The image tag and complete fresh-environment setup have not yet been independently verified.
 
 ## 6. Initialize the Database
 
