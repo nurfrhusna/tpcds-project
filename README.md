@@ -302,5 +302,4 @@ The results should not be presented as official, fully compliant TPC-DS benchmar
 ## 14. References
 
 - TPC-DS Benchmark Specification, Version 4.0.0
-- [ClickHouse Documentation](https://clickhouse.com/docs)
 - [ClickHouse TPC-DS Benchmark Query Collection](https://github.com/ClickHouse/ClickHouse/tree/master/tests/benchmarks/tpc-ds/queries)
