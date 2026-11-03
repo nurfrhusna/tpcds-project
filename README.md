@@ -279,8 +279,6 @@ Additional measurements are required to investigate CPU-intensive and I/O-intens
 
 ## 13. Benchmark Limitations
 
-The current experiments use a local machine and TPC-DS Scale Factor 1 data.
-
 Performance can vary due to:
 
 - Operating system scheduling
