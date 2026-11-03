@@ -109,7 +109,7 @@ The schema uses ClickHouse MergeTree tables.
 
 The `date_dim.d_date` column uses `Date32` to support historical dates before 1970.
 
-**Important:** The initialization script has passed a PowerShell syntax check, but its complete execution has not yet been independently validated on a clean teammate installation.
+**Important:** The initialization script has passed a PowerShell syntax check, but its complete execution has not yet been independently validated on a clean installation.
 
 The existing populated local database should not be deleted or replaced for setup testing.
 
