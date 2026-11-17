@@ -1,0 +1,2 @@
+# Preserve the original SQL bytes and recorded hashes across Windows/Linux checkouts.
+* -text

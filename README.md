@@ -1,6 +1,14 @@
 
 # TPC-DS Benchmarking with ClickHouse
 
+## Milestone 3: shared team experiment
+
+For Milestone 3, follow [the shared experiment instructions](milestone3/README.md).
+Open a terminal in the `milestone3` folder before running its commands.
+That workflow uses separate Docker containers, two warm-up rounds, and seven measured rounds for each query.
+The instructions below describe the earlier SF1 setup.
+
+
 ## 1. Project Overview
 
 This project implements a TPC-DS-based analytical benchmarking workload using ClickHouse.

@@ -1,0 +1,11 @@
+data/
+runs/
+local/
+__pycache__/
+*.py[cod]
+*.dat
+*.duckdb*
+*.zip
+.env
+.env.*
+.DS_Store
