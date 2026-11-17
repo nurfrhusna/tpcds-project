@@ -1,0 +1,172 @@
+{
+  "status": "PASS",
+  "scale_factor": 10,
+  "clickhouse_container": "team12-m3-sf10-direct-20261117",
+  "raw_volume": "tpcds-m3-raw-sf10-20261117",
+  "started_utc": "2026-11-17T04:34:12.694161+00:00",
+  "comparison_policy": {
+    "exact": "integers and decimals",
+    "float_relative_tolerance": 1e-09,
+    "float_absolute_tolerance": 1e-08,
+    "duplicates": "consume each matching occurrence once"
+  },
+  "query_hashes": {
+    "3": "6ca95fce0fdf8a4a04d69e0527b941f8e5e6d06d0de03eb76bc6df8fdf857e08",
+    "7": "80b499aafefcd8cb122d57590b77857bd3b2ea47378e6f541b2b121dcf8c6bee",
+    "31": "9b16723f99850103ef5ac5efabefbb0146862d9492765da8491b49eda83bc6c7",
+    "47": "d7744132f971a786119dcba5170844dd2719eec47430b10d3694013c7b21e49e",
+    "64": "679d82e676d47cb7d1437cdae5b11cf48339f9c4a77c03eb879043953e186de0",
+    "82": "0efea0cddd801d318554ebf08705211c94ff190ad7501d3a3753f72170abc697"
+  },
+  "queries": [
+    {
+      "query": 3,
+      "reference_rows": 100,
+      "clickhouse_rows": 100,
+      "comparison": {
+        "equal": true,
+        "missing_count": 0,
+        "extra_count": 0,
+        "first_missing": [],
+        "first_extra": []
+      },
+      "project_vs_canonical": {
+        "equal": true,
+        "missing_count": 0,
+        "extra_count": 0,
+        "first_missing": [],
+        "first_extra": []
+      },
+      "ordered_result_equal": true,
+      "dialect_changes": []
+    },
+    {
+      "query": 7,
+      "reference_rows": 100,
+      "clickhouse_rows": 100,
+      "comparison": {
+        "equal": true,
+        "missing_count": 0,
+        "extra_count": 0,
+        "first_missing": [],
+        "first_extra": []
+      },
+      "project_vs_canonical": {
+        "equal": true,
+        "missing_count": 0,
+        "extra_count": 0,
+        "first_missing": [],
+        "first_extra": []
+      },
+      "ordered_result_equal": true,
+      "dialect_changes": []
+    },
+    {
+      "query": 31,
+      "reference_rows": 288,
+      "clickhouse_rows": 288,
+      "comparison": {
+        "equal": true,
+        "missing_count": 0,
+        "extra_count": 0,
+        "first_missing": [],
+        "first_extra": []
+      },
+      "project_vs_canonical": {
+        "equal": true,
+        "missing_count": 0,
+        "extra_count": 0,
+        "first_missing": [],
+        "first_extra": []
+      },
+      "ordered_result_equal": true,
+      "dialect_changes": [
+        "Float64 -> DOUBLE; retain floating-point division"
+      ]
+    },
+    {
+      "query": 47,
+      "reference_rows": 100,
+      "clickhouse_rows": 100,
+      "comparison": {
+        "equal": true,
+        "missing_count": 0,
+        "extra_count": 0,
+        "first_missing": [],
+        "first_extra": []
+      },
+      "project_vs_canonical": {
+        "equal": true,
+        "missing_count": 0,
+        "extra_count": 0,
+        "first_missing": [],
+        "first_extra": []
+      },
+      "ordered_result_equal": true,
+      "dialect_changes": [
+        "Outer-query v1 qualifiers -> v2; no predicate changes"
+      ]
+    },
+    {
+      "query": 64,
+      "reference_rows": 33,
+      "clickhouse_rows": 33,
+      "comparison": {
+        "equal": true,
+        "missing_count": 0,
+        "extra_count": 0,
+        "first_missing": [],
+        "first_extra": []
+      },
+      "project_vs_canonical": {
+        "equal": true,
+        "missing_count": 0,
+        "extra_count": 0,
+        "first_missing": [],
+        "first_extra": []
+      },
+      "ordered_result_equal": true,
+      "dialect_changes": []
+    },
+    {
+      "query": 82,
+      "reference_rows": 6,
+      "clickhouse_rows": 6,
+      "comparison": {
+        "equal": true,
+        "missing_count": 0,
+        "extra_count": 0,
+        "first_missing": [],
+        "first_extra": []
+      },
+      "project_vs_canonical": {
+        "equal": true,
+        "missing_count": 0,
+        "extra_count": 0,
+        "first_missing": [],
+        "first_extra": []
+      },
+      "ordered_result_equal": true,
+      "dialect_changes": [
+        "ClickHouse CAST(value, 'date') -> SQL CAST(value AS DATE)"
+      ]
+    }
+  ],
+  "dataset_sha256": "aa57f593ddf2c2f714d7b68c452dab67eba9a90bc4aea78db5e26da6d7a6e911",
+  "server_version": "26.10.3.7",
+  "validation_image_id": "sha256:c61f5c6bce56ae4061dfd849e436ae09be99cea66bd7f6ede2721aa0729bb746",
+  "canonical_sql_hashes": {
+    "3": "fc31f187cdd50eb85136feb6a4c14b907695e833dcaba1ca9ac0d0158c678cee",
+    "7": "deadce391ebc9ec2e0373e15f0dd1a8b2bb97841c9c4a8786fb5186a67799450",
+    "31": "683b60a36486a6e1deb185bb518fa44b2d7b692684518738ad234a250862cf91",
+    "47": "1c7a912fa38f509be6dea6c73be465ec4911f8076cc9bdae9c590c0e012ab113",
+    "64": "70ea2e3b534f8d5b9e40ca20c73b83d235a6510feed404d4c7f1569d1dffe8d9",
+    "82": "8e0ec28e0f662d7bf9bf0e7c8bf9a5804a9fae2ff66b065613e92d9d3a8f5a1d"
+  },
+  "reference_schema_sha256": "72c7ddf0a7f0d97976930bb8eabb19e76f56bdb8c52349e917033396f7b060ba",
+  "reference_volume": "team12-reference-sf10-7ac30e6bfc",
+  "reference_engine": "DuckDB",
+  "reference_version": "1.4.1",
+  "all_24_table_counts_match": true,
+  "finished_utc": "2026-11-17T04:36:26.366930+00:00"
+}

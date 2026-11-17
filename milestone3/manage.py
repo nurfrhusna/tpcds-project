@@ -32,7 +32,7 @@ def docker(*args, input=None, capture=True):
 
 def save(path, value):
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
+    path.write_text(json.dumps(value, indent=2, default=str) + "\n", encoding="utf-8")
 
 
 def build(args):
@@ -48,17 +48,26 @@ def build(args):
 
 
 def generate(args):
-    output = args.output.resolve()
-    output.mkdir(parents=True, exist_ok=True)
-    if any(output.iterdir()):
-        raise RuntimeError("Choose an empty output folder; existing data will not be overwritten.")
+    if not args.volume_only and args.output is None:
+        raise RuntimeError("Provide --output, or choose --volume-only to keep raw files inside Docker.")
+    output = args.output.resolve() if args.output else None
+    if not args.volume_only:
+        output.mkdir(parents=True, exist_ok=True)
+        if any(output.iterdir()):
+            raise RuntimeError("Choose an empty output folder; existing data will not be overwritten.")
     name = "team12-generator-" + uuid.uuid4().hex[:10]
-    volume = name + "-data"
+    volume = args.volume_name or name + "-data"
+    if volume in docker('volume', 'ls', '--format', '{{.Name}}').splitlines():
+        raise RuntimeError("Raw data volume already exists; choose a fresh --volume-name.")
     print("Generating in Docker volume:", volume, flush=True)
     docker("run", "--rm", "--name", name, "--label", "tpcds.role=generator",
            "--network", "none", "--cpus", "4", "--memory", "2g",
            "--mount", f"type=volume,source={volume},target=/output",
            TOOLKIT_IMAGE, "-SCALE", args.sf, "-DIR", "/output", capture=False)
+    if args.volume_only:
+        print("Generated volume retained:", volume)
+        print(f"Next: python prepare_volume.py --data-volume {volume} --sf {args.sf} --name team12-m3-sf{args.sf}")
+        return
     print("Copying generated files to:", output, flush=True)
     command = [shutil.which("docker"), "run", "--rm", "--network", "none",
                "--mount", f"type=volume,source={volume},target=/data,readonly",
@@ -173,7 +182,9 @@ def main():
     p.set_defaults(action=build)
     p = commands.add_parser("generate", help="Generate new SF1 or SF10 files into an empty folder")
     p.add_argument("--sf", type=int, choices=[1, 10], required=True)
-    p.add_argument("--output", type=Path, required=True)
+    p.add_argument("--output", type=Path)
+    p.add_argument("--volume-only", action="store_true", help="Keep raw files inside Docker, without exporting them")
+    p.add_argument("--volume-name", help="Optional new raw-data volume name; existing volumes are refused")
     p.set_defaults(action=generate)
     p = commands.add_parser("prepare", help="Load into a new isolated container and volume")
     p.add_argument("--sf", type=int, choices=[1, 10], required=True)

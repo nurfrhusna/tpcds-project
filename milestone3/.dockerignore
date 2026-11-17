@@ -1,0 +1,9 @@
+**
+!validation/
+!validation/**
+!validation_helpers.py
+!project-snapshot/
+!project-snapshot/scripts/
+!project-snapshot/scripts/bulk_import.py
+!project-snapshot/queries/
+!project-snapshot/queries/**

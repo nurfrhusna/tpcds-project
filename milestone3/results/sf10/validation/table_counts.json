@@ -1,0 +1,170 @@
+[
+  {
+    "table": "call_center",
+    "raw_rows": 24,
+    "clickhouse_rows": 24,
+    "reference_rows": 24,
+    "match": true
+  },
+  {
+    "table": "catalog_page",
+    "raw_rows": 12000,
+    "clickhouse_rows": 12000,
+    "reference_rows": 12000,
+    "match": true
+  },
+  {
+    "table": "catalog_returns",
+    "raw_rows": 1439749,
+    "clickhouse_rows": 1439749,
+    "reference_rows": 1439749,
+    "match": true
+  },
+  {
+    "table": "catalog_sales",
+    "raw_rows": 14401261,
+    "clickhouse_rows": 14401261,
+    "reference_rows": 14401261,
+    "match": true
+  },
+  {
+    "table": "customer",
+    "raw_rows": 500000,
+    "clickhouse_rows": 500000,
+    "reference_rows": 500000,
+    "match": true
+  },
+  {
+    "table": "customer_address",
+    "raw_rows": 250000,
+    "clickhouse_rows": 250000,
+    "reference_rows": 250000,
+    "match": true
+  },
+  {
+    "table": "customer_demographics",
+    "raw_rows": 1920800,
+    "clickhouse_rows": 1920800,
+    "reference_rows": 1920800,
+    "match": true
+  },
+  {
+    "table": "date_dim",
+    "raw_rows": 73049,
+    "clickhouse_rows": 73049,
+    "reference_rows": 73049,
+    "match": true
+  },
+  {
+    "table": "household_demographics",
+    "raw_rows": 7200,
+    "clickhouse_rows": 7200,
+    "reference_rows": 7200,
+    "match": true
+  },
+  {
+    "table": "income_band",
+    "raw_rows": 20,
+    "clickhouse_rows": 20,
+    "reference_rows": 20,
+    "match": true
+  },
+  {
+    "table": "inventory",
+    "raw_rows": 133110000,
+    "clickhouse_rows": 133110000,
+    "reference_rows": 133110000,
+    "match": true
+  },
+  {
+    "table": "item",
+    "raw_rows": 102000,
+    "clickhouse_rows": 102000,
+    "reference_rows": 102000,
+    "match": true
+  },
+  {
+    "table": "promotion",
+    "raw_rows": 500,
+    "clickhouse_rows": 500,
+    "reference_rows": 500,
+    "match": true
+  },
+  {
+    "table": "reason",
+    "raw_rows": 75,
+    "clickhouse_rows": 75,
+    "reference_rows": 75,
+    "match": true
+  },
+  {
+    "table": "ship_mode",
+    "raw_rows": 20,
+    "clickhouse_rows": 20,
+    "reference_rows": 20,
+    "match": true
+  },
+  {
+    "table": "store",
+    "raw_rows": 102,
+    "clickhouse_rows": 102,
+    "reference_rows": 102,
+    "match": true
+  },
+  {
+    "table": "store_returns",
+    "raw_rows": 2875432,
+    "clickhouse_rows": 2875432,
+    "reference_rows": 2875432,
+    "match": true
+  },
+  {
+    "table": "store_sales",
+    "raw_rows": 28800991,
+    "clickhouse_rows": 28800991,
+    "reference_rows": 28800991,
+    "match": true
+  },
+  {
+    "table": "time_dim",
+    "raw_rows": 86400,
+    "clickhouse_rows": 86400,
+    "reference_rows": 86400,
+    "match": true
+  },
+  {
+    "table": "warehouse",
+    "raw_rows": 10,
+    "clickhouse_rows": 10,
+    "reference_rows": 10,
+    "match": true
+  },
+  {
+    "table": "web_page",
+    "raw_rows": 200,
+    "clickhouse_rows": 200,
+    "reference_rows": 200,
+    "match": true
+  },
+  {
+    "table": "web_returns",
+    "raw_rows": 719217,
+    "clickhouse_rows": 719217,
+    "reference_rows": 719217,
+    "match": true
+  },
+  {
+    "table": "web_sales",
+    "raw_rows": 7197566,
+    "clickhouse_rows": 7197566,
+    "reference_rows": 7197566,
+    "match": true
+  },
+  {
+    "table": "web_site",
+    "raw_rows": 42,
+    "clickhouse_rows": 42,
+    "reference_rows": 42,
+    "match": true
+  }
+]

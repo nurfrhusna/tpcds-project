@@ -135,7 +135,21 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--container", required=True)
     parser.add_argument("--sf", type=int, required=True, choices=[1, 10])
+    parser.add_argument("--validation-dir", type=Path,
+                        help="Directory containing a successful same-input SF10 validation")
     args = parser.parse_args()
+    validation = None
+    if args.sf == 10:
+        if not args.validation_dir:
+            parser.error("SF10 requires --validation-dir from validate_results.py")
+        validation = json.loads((args.validation_dir / "validation.json").read_text(encoding="utf-8"))
+        expected_queries = {3, 7, 31, 47, 64, 82}
+        if (validation.get("status") != "PASS" or validation.get("scale_factor") != 10 or
+                not validation.get("all_24_table_counts_match") or
+                {q["query"] for q in validation.get("queries", [])} != expected_queries or
+                not all(q["comparison"]["equal"] and q["project_vs_canonical"]["equal"] for q in validation["queries"])):
+            raise RuntimeError("A successful complete SF10 validation is required")
+    reference_dir = args.validation_dir if args.sf == 10 else ROOT / "references/sf1"
     protocol = json.loads((ROOT / "protocol.json").read_text())
     tag = datetime.datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + uuid.uuid4().hex[:6]
     output = ROOT / "runs" / f"sf{args.sf}_{tag}"
@@ -143,25 +157,47 @@ def main():
     manifest = {"status": "preparing", "scale_factor": args.sf, "container": args.container,
                 "protocol": protocol, "query_hashes": {}, "sf1_regression": {}, "output": str(output),
                 "runner_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
-                "protocol_sha256": hashlib.sha256((ROOT / "protocol.json").read_bytes()).hexdigest()}
+                "protocol_sha256": hashlib.sha256((ROOT / "protocol.json").read_bytes()).hexdigest(),
+                "schema_sha256": hashlib.sha256((ROOT / "project-snapshot/schema/create_tables_nullable.sql").read_bytes()).hexdigest(),
+                "result_regression": {}}
+    if validation:
+        manifest["validation_sha256"] = hashlib.sha256((args.validation_dir / "validation.json").read_bytes()).hexdigest()
+        manifest["dataset_sha256"] = validation["dataset_sha256"]
     save_json(output / "manifest.json", manifest)
     records = []
     paused_merges = False
     try:
         inspection = json.loads(checked_docker(["inspect", args.container], timeout=30))[0]
         save_json(output / "container.json", inspection)
+        if not inspection["State"]["Running"]:
+            raise RuntimeError("Start the experiment container before benchmarking")
         host = inspection["HostConfig"]
+        if validation and (inspection["Config"].get("Labels") or {}).get("tpcds.dataset_sha256") != validation["dataset_sha256"]:
+            raise RuntimeError("SF10 validation does not match this container's input fingerprint")
         if (host["NanoCpus"] != protocol["container_cpus"] * 1000000000 or
                 host["Memory"] != protocol["container_memory_bytes"] or
                 host["MemorySwap"] != protocol["container_memory_swap_bytes"]):
             raise RuntimeError("Container resource limits differ from the protocol")
         active = checked_docker(["ps", "--format", "{{json .}}"], timeout=30)
         (output / "running_containers.jsonl").write_text(active, encoding="utf-8")
-        generator_ids = checked_docker(["ps", "-q", "--filter", "label=tpcds.role=generator"], timeout=30).split()
-        for generator in generator_ids:
-            state = json.loads(checked_docker(["inspect", generator], timeout=30))[0]["State"]
-            if state["Running"] and not state["Paused"]:
-                raise RuntimeError("A data generator is running; pause it before measurement")
+        helper_ids = checked_docker(["ps", "-q", "--filter", "label=tpcds.role"], timeout=30).split()
+        for helper in helper_ids:
+            helper_info = json.loads(checked_docker(["inspect", helper], timeout=30))[0]
+            role = (helper_info["Config"].get("Labels") or {}).get("tpcds.role")
+            state = helper_info["State"]
+            if role in ("generator", "loader", "reference") and state["Running"] and not state["Paused"]:
+                raise RuntimeError("A data generator, loader, or reference engine is running; stop it before measurement")
+        ready_deadline = time.monotonic() + 60
+        while True:
+            try:
+                ready = client(args.container, "SELECT 1", timeout=5)
+                if ready.returncode == 0:
+                    break
+            except subprocess.TimeoutExpired:
+                pass
+            if time.monotonic() >= ready_deadline:
+                raise RuntimeError("ClickHouse did not become ready within 60 seconds")
+            time.sleep(1)
         manifest["server_version"] = query(args.container, "SELECT version()")
         smoke = client(args.container, "SELECT 1", settings=protocol["query_settings"])
         if smoke.returncode:
@@ -174,6 +210,10 @@ def main():
         save_json(output / "tables_before.json", parts)
         if len(parts) != 24:
             raise RuntimeError("Expected 24 populated tables")
+        if validation:
+            validated_counts = {r["table"]: r["reference_rows"] for r in json.loads((args.validation_dir / "table_counts.json").read_text())}
+            if any(int(t["rows"]) != validated_counts[t["table"]] for t in parts):
+                raise RuntimeError("Current SF10 row counts differ from the validated dataset")
         if args.sf == 1:
             with (ROOT / "project-snapshot/results/sf1_table_counts.csv").open(encoding="utf-8-sig") as handle:
                 expected_counts = {r["table"]: int(r["row_count"]) for r in csv.DictReader(handle)}
@@ -183,6 +223,8 @@ def main():
         for number in protocol["queries"]:
             path = ROOT / f"project-snapshot/queries/query_{number:02}.sql"
             manifest["query_hashes"][str(number)] = hashlib.sha256(path.read_bytes()).hexdigest()
+            if validation and manifest["query_hashes"][str(number)] != validation["query_hashes"][str(number)]:
+                raise RuntimeError("SQL changed after SF10 correctness validation")
             sql_files[number] = path.read_text(encoding="utf-8-sig").strip().rstrip(";")
         schedule = []
         rng = random.Random(protocol["random_seed"])
@@ -243,15 +285,16 @@ def main():
                     record["status"] = "missing_query_log"
                 if step["phase"] == "warmup" and step["round"] == 1 and record["status"] == "ok":
                     (output / f"query_{step['query']:02}_output.jsonl").write_text(stdout, encoding="utf-8")
+                    reference = json.loads((reference_dir / f"query_{step['query']:02}_reference.json").read_text())
+                    observed = [json.loads(line, parse_float=decimal.Decimal) for line in stdout.splitlines() if line.strip()]
+                    expected_rows = decode_rows(reference["rows"], reference["columns"])
+                    observed_rows = decode_rows(observed, reference["columns"])
+                    comparison = compare_bags(expected_rows, observed_rows)
+                    manifest["result_regression"][str(step["query"])] = comparison
                     if args.sf == 1:
-                        reference = json.loads((ROOT / f"references/sf1/query_{step['query']:02}_reference.json").read_text())
-                        observed = [json.loads(line, parse_float=decimal.Decimal) for line in stdout.splitlines() if line.strip()]
-                        expected_rows = decode_rows(reference["rows"], reference["columns"])
-                        observed_rows = decode_rows(observed, reference["columns"])
-                        comparison = compare_bags(expected_rows, observed_rows)
                         manifest["sf1_regression"][str(step["query"])] = comparison
-                        if not comparison["equal"]:
-                            record["status"] = "regression_mismatch"
+                    if not comparison["equal"]:
+                        record["status"] = "regression_mismatch"
                 records.append(record)
                 journal.write(json.dumps(record, ensure_ascii=False, default=str) + "\n")
                 journal.flush()

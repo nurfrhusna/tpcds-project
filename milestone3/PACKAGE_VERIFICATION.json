@@ -1,60 +1,36 @@
 {
   "date_kst": "2026-11-17",
-  "scope": "Verification on the original experiment PC; not a test on teammates hardware",
-  "toolkit_build": "passed from official TPC-DS 4.0.0 source",
-  "volume_generation_and_host_export": "passed",
-  "all_24_generated_sf1_file_hashes_match_saved_dataset": true,
-  "fresh_clickhouse_import_and_24_sf1_row_counts": "passed",
-  "sf1_reference_query_comparisons": {
-    "3": {
-      "equal": true,
-      "missing_count": 0,
-      "extra_count": 0,
-      "first_missing": [],
-      "first_extra": []
+  "status": "PASS",
+  "scope": "Same-PC, single-node paired SF1/SF10 experiment",
+  "sf10_same_input_validation": "PASS: 24 table counts and all 6 project/canonical/ClickHouse comparisons",
+  "same_runner_schema_sql_protocol_and_container_image": true,
+  "runs": {
+    "sf1": {
+      "source_run_id": "sf1_20261117_133736_a9c24e",
+      "warmup_successes": 12,
+      "measured_successes": 42,
+      "measured_failures": 0,
+      "six_first_warmup_outputs_match_reference": true,
+      "only_target_container_running": true
     },
-    "7": {
-      "equal": true,
-      "missing_count": 0,
-      "extra_count": 0,
-      "first_missing": [],
-      "first_extra": []
-    },
-    "31": {
-      "equal": true,
-      "missing_count": 0,
-      "extra_count": 0,
-      "first_missing": [],
-      "first_extra": []
-    },
-    "47": {
-      "equal": true,
-      "missing_count": 0,
-      "extra_count": 0,
-      "first_missing": [],
-      "first_extra": []
-    },
-    "64": {
-      "equal": true,
-      "missing_count": 0,
-      "extra_count": 0,
-      "first_missing": [],
-      "first_extra": []
-    },
-    "82": {
-      "equal": true,
-      "missing_count": 0,
-      "extra_count": 0,
-      "first_missing": [],
-      "first_extra": []
+    "sf10": {
+      "source_run_id": "sf10_20261117_133850_82cf91",
+      "warmup_successes": 12,
+      "measured_successes": 42,
+      "measured_failures": 0,
+      "six_first_warmup_outputs_match_reference": true,
+      "only_target_container_running": true
     }
   },
-  "warmup_attempts": 12,
-  "measured_attempts": 42,
-  "all_attempts_successful": true,
-  "protocol_unchanged": true,
-  "sf10_tested": false,
-  "original_project_modified": false,
-  "shared_runner_sha256": "c37f49b3e3a6ee526b8aadbe11126c4d135e09cbd92bcb59ab0c80c67fcd7f6f",
-  "generation_wrapper_sha256": "4e917a877e4e89066cae7d313621cf21bbf622b3e34528e3bfc40c588da2de80"
+  "script_sha256": {
+    "manage.py": "34f266a7799b9c3b3628f67ec491244a1aaa98b1479e17fdda38c24d045c03be",
+    "prepare_volume.py": "f69d498af225f3480be3280dca992649b099b261ac95d7cdf290a0ff9ff7a048",
+    "validate_results.py": "37dd31612e15f944a646b35450602c1db923f29aee4be06a754b34edebfa2c5f",
+    "run_controlled.py": "a80c5ac7c4571507865ce05c268ea22925e515d2d40eb5185fcac3ffb06d202b",
+    "collect_results.py": "293e9fe6ad6d99df63fa03c2b4d88f9b3527954823b48329566a819a06cbb85e",
+    "validation/worker.py": "c1683f8d42fd285e62b096d6dbaf92a175a24972a6caa9d90d413da1ed2dd79c"
+  },
+  "historical_initial_package_verification": "examples/sf1/initial_package_verification.json",
+  "correctness_evidence": "results/sf10/validation/validation.json",
+  "performance_evidence": "results/scaling_summary.csv"
 }

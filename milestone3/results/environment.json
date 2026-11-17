@@ -1,0 +1,31 @@
+{
+  "platform": "Windows-11-10.0.26300-SP0",
+  "architecture": "AMD64",
+  "python_version": "3.12.1",
+  "processor": "AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD",
+  "docker": {
+    "ServerVersion": "29.9.3",
+    "OSType": "linux",
+    "Architecture": "x86_64",
+    "NCPU": 16,
+    "MemTotal": 16363929600,
+    "KernelVersion": "6.18.58.1-microsoft-standard-WSL2"
+  },
+  "reviewed_host_details": {
+    "CPU": [
+      {
+        "Name": "AMD Ryzen 9 6900HS with Radeon Graphics        ",
+        "NumberOfCores": 8,
+        "NumberOfLogicalProcessors": 16
+      }
+    ],
+    "OS": {
+      "Caption": "Microsoft Windows 11 Home",
+      "Version": "10.0.26300",
+      "BuildNumber": "26300"
+    },
+    "Computer": {
+      "TotalPhysicalMemory": 33533931520
+    }
+  }
+}
