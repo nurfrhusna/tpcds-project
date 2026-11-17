@@ -1,0 +1,60 @@
+{
+  "date_kst": "2026-11-17",
+  "scope": "Verification on the original experiment PC; not a test on teammates hardware",
+  "toolkit_build": "passed from official TPC-DS 4.0.0 source",
+  "volume_generation_and_host_export": "passed",
+  "all_24_generated_sf1_file_hashes_match_saved_dataset": true,
+  "fresh_clickhouse_import_and_24_sf1_row_counts": "passed",
+  "sf1_reference_query_comparisons": {
+    "3": {
+      "equal": true,
+      "missing_count": 0,
+      "extra_count": 0,
+      "first_missing": [],
+      "first_extra": []
+    },
+    "7": {
+      "equal": true,
+      "missing_count": 0,
+      "extra_count": 0,
+      "first_missing": [],
+      "first_extra": []
+    },
+    "31": {
+      "equal": true,
+      "missing_count": 0,
+      "extra_count": 0,
+      "first_missing": [],
+      "first_extra": []
+    },
+    "47": {
+      "equal": true,
+      "missing_count": 0,
+      "extra_count": 0,
+      "first_missing": [],
+      "first_extra": []
+    },
+    "64": {
+      "equal": true,
+      "missing_count": 0,
+      "extra_count": 0,
+      "first_missing": [],
+      "first_extra": []
+    },
+    "82": {
+      "equal": true,
+      "missing_count": 0,
+      "extra_count": 0,
+      "first_missing": [],
+      "first_extra": []
+    }
+  },
+  "warmup_attempts": 12,
+  "measured_attempts": 42,
+  "all_attempts_successful": true,
+  "protocol_unchanged": true,
+  "sf10_tested": false,
+  "original_project_modified": false,
+  "shared_runner_sha256": "c37f49b3e3a6ee526b8aadbe11126c4d135e09cbd92bcb59ab0c80c67fcd7f6f",
+  "generation_wrapper_sha256": "4e917a877e4e89066cae7d313621cf21bbf622b3e34528e3bfc40c588da2de80"
+}

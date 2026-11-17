@@ -1,0 +1,19 @@
+{
+  ".gitignore": "c5d123f05029dc6165c901fb34dbdfa1574390f57f5dba6bc8a4c7c4d5a50272",
+  "convert_schema.py": "43a37cbd76d1525bf2300359f549b10b08dd2ee33ab3eb845b816a4011421d27",
+  "docker-compose.yml": "dd4e81059aeb4980a7a2cb20eefce077617a117518a220fba5e4f6128e6cdf3e",
+  "README.md": "b2199e2213595f4cead69b6fc2af1d234e2f86a38889304fa19a47b6cd66ba5f",
+  "queries\\query_03.sql": "6ca95fce0fdf8a4a04d69e0527b941f8e5e6d06d0de03eb76bc6df8fdf857e08",
+  "queries\\query_07.sql": "80b499aafefcd8cb122d57590b77857bd3b2ea47378e6f541b2b121dcf8c6bee",
+  "queries\\query_31.sql": "9b16723f99850103ef5ac5efabefbb0146862d9492765da8491b49eda83bc6c7",
+  "queries\\query_47.sql": "d7744132f971a786119dcba5170844dd2719eec47430b10d3694013c7b21e49e",
+  "queries\\query_64.sql": "679d82e676d47cb7d1437cdae5b11cf48339f9c4a77c03eb879043953e186de0",
+  "queries\\query_82.sql": "0efea0cddd801d318554ebf08705211c94ff190ad7501d3a3753f72170abc697",
+  "results\\benchmark_20261102_205449.csv": "539f7945f300a4add35f9658837a953331cbeac926ce7ed5eebb7756373bc31b",
+  "results\\sf1_schema_validation.csv": "09e29ad9c1416efc3d0d94ae199a184a5252b665d9dc83de7ac8d5eb97e2efe9",
+  "results\\sf1_table_counts.csv": "7c6538afb75f0f7c8c2a7245caab6ed2b9a8e167b4b5735f5f444ff6de31b4a7",
+  "schema\\create_tables_nullable.sql": "35b4c6775e825e2e944d918c62dc33c2ac6b77b75351b7727723a2edf7a624dc",
+  "scripts\\bulk_import.py": "30cac2722c63fbed1f7ae0cdac079f729026453c15344d51ea1c8a1acc89705b",
+  "scripts\\init_database.ps1": "3e9826e1c3f6b31ae5399ccba637103803ecb3f2b91f1228dde73c185ebad640",
+  "scripts\\run_benchmark.py": "e0c4dc0d5b2c7e13989749ac697853ac780ee4d70a4eb62f03a4a2ca0c7a22bf"
+}
