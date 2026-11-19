@@ -20,6 +20,7 @@ if not DOCKER:
     raise SystemExit("Docker was not found. Install Docker Desktop and add docker to PATH.")
 sys.dont_write_bytecode = True
 from validation_helpers import compare_bags, decode_value
+from manage import PROTOCOL
 
 
 def save_json(path, value):
@@ -76,9 +77,9 @@ def query_statistics(container, query_id):
     return None
 
 
-def settle_tables(container):
+def settle_tables(container, timeout_seconds):
     stable = 0
-    deadline = time.monotonic() + 300
+    deadline = time.monotonic() + timeout_seconds
     while time.monotonic() < deadline:
         merges = int(query(container, "SELECT count() FROM system.merges WHERE database='tpcds_test'"))
         mutations = int(query(container, "SELECT count() FROM system.mutations WHERE database='tpcds_test' AND NOT is_done"))
@@ -87,9 +88,10 @@ def settle_tables(container):
             query(container, "SYSTEM STOP MERGES")
             if int(query(container, "SELECT count() FROM system.merges WHERE database='tpcds_test'")) == 0:
                 return
+            query(container, "SYSTEM START MERGES")
             stable = 0
         time.sleep(1)
-    raise RuntimeError("Tables did not settle within 300 seconds")
+    raise RuntimeError(f"Tables did not settle within {timeout_seconds} seconds")
 
 
 def summarize(records, queries):
@@ -134,25 +136,25 @@ def export_csv(path, records):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--container", required=True)
-    parser.add_argument("--sf", type=int, required=True, choices=[1, 10])
+    parser.add_argument("--sf", type=int, required=True, choices=PROTOCOL["scales"])
     parser.add_argument("--validation-dir", type=Path,
-                        help="Directory containing a successful same-input SF10 validation")
+                        help="Directory containing a successful same-input validation for SF10 or SF100")
+    parser.add_argument("--output", type=Path, help="New run directory, otherwise use a timestamped folder under runs/")
     args = parser.parse_args()
+    protocol = PROTOCOL
     validation = None
-    if args.sf == 10:
+    if args.sf > 1:
         if not args.validation_dir:
-            parser.error("SF10 requires --validation-dir from validate_results.py")
+            parser.error(f"SF{args.sf} requires --validation-dir from validate_results.py")
         validation = json.loads((args.validation_dir / "validation.json").read_text(encoding="utf-8"))
-        expected_queries = {3, 7, 31, 47, 64, 82}
-        if (validation.get("status") != "PASS" or validation.get("scale_factor") != 10 or
+        if (validation.get("status") != "PASS" or validation.get("scale_factor") != args.sf or
                 not validation.get("all_24_table_counts_match") or
-                {q["query"] for q in validation.get("queries", [])} != expected_queries or
+                sorted(q["query"] for q in validation.get("queries", [])) != sorted(protocol["queries"]) or
                 not all(q["comparison"]["equal"] and q["project_vs_canonical"]["equal"] for q in validation["queries"])):
-            raise RuntimeError("A successful complete SF10 validation is required")
-    reference_dir = args.validation_dir if args.sf == 10 else ROOT / "references/sf1"
-    protocol = json.loads((ROOT / "protocol.json").read_text())
+            raise RuntimeError(f"A successful complete SF{args.sf} validation is required")
+    reference_dir = args.validation_dir if validation else ROOT / "references/sf1"
     tag = datetime.datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + uuid.uuid4().hex[:6]
-    output = ROOT / "runs" / f"sf{args.sf}_{tag}"
+    output = args.output.resolve() if args.output else ROOT / "runs" / f"sf{args.sf}_{tag}"
     output.mkdir(parents=True)
     manifest = {"status": "preparing", "scale_factor": args.sf, "container": args.container,
                 "protocol": protocol, "query_hashes": {}, "sf1_regression": {}, "output": str(output),
@@ -167,13 +169,18 @@ def main():
     records = []
     paused_merges = False
     try:
+        engine = json.loads(checked_docker(["info", "--format", "{{json .}}"], timeout=30))
+        manifest["environment"] = {
+            "docker_engine_sha256": hashlib.sha256(engine["ID"].encode()).hexdigest(),
+            "docker": {key: engine[key] for key in ["ServerVersion", "OSType", "Architecture", "NCPU", "MemTotal", "KernelVersion"]},
+        }
         inspection = json.loads(checked_docker(["inspect", args.container], timeout=30))[0]
         save_json(output / "container.json", inspection)
         if not inspection["State"]["Running"]:
             raise RuntimeError("Start the experiment container before benchmarking")
         host = inspection["HostConfig"]
         if validation and (inspection["Config"].get("Labels") or {}).get("tpcds.dataset_sha256") != validation["dataset_sha256"]:
-            raise RuntimeError("SF10 validation does not match this container's input fingerprint")
+            raise RuntimeError(f"SF{args.sf} validation does not match this container's input fingerprint")
         if (host["NanoCpus"] != protocol["container_cpus"] * 1000000000 or
                 host["Memory"] != protocol["container_memory_bytes"] or
                 host["MemorySwap"] != protocol["container_memory_swap_bytes"]):
@@ -204,8 +211,8 @@ def main():
             raise RuntimeError(smoke.stderr)
         settings = json_rows(args.container, "SELECT name,value,changed FROM system.settings ORDER BY name")
         save_json(output / "server_defaults.json", settings)
-        settle_tables(args.container)
         paused_merges = True
+        settle_tables(args.container, protocol["merge_settle_timeout_seconds"])
         parts = json_rows(args.container, "SELECT table, count() AS active_parts, sum(rows) AS rows, sum(bytes_on_disk) AS bytes_on_disk, sum(data_compressed_bytes) AS compressed_bytes, sum(data_uncompressed_bytes) AS uncompressed_bytes FROM system.parts WHERE database='tpcds_test' AND active GROUP BY table ORDER BY table")
         save_json(output / "tables_before.json", parts)
         if len(parts) != 24:
@@ -213,7 +220,7 @@ def main():
         if validation:
             validated_counts = {r["table"]: r["reference_rows"] for r in json.loads((args.validation_dir / "table_counts.json").read_text())}
             if any(int(t["rows"]) != validated_counts[t["table"]] for t in parts):
-                raise RuntimeError("Current SF10 row counts differ from the validated dataset")
+                raise RuntimeError(f"Current SF{args.sf} row counts differ from the validated dataset")
         if args.sf == 1:
             with (ROOT / "project-snapshot/results/sf1_table_counts.csv").open(encoding="utf-8-sig") as handle:
                 expected_counts = {r["table"]: int(r["row_count"]) for r in csv.DictReader(handle)}
@@ -224,7 +231,7 @@ def main():
             path = ROOT / f"project-snapshot/queries/query_{number:02}.sql"
             manifest["query_hashes"][str(number)] = hashlib.sha256(path.read_bytes()).hexdigest()
             if validation and manifest["query_hashes"][str(number)] != validation["query_hashes"][str(number)]:
-                raise RuntimeError("SQL changed after SF10 correctness validation")
+                raise RuntimeError(f"SQL changed after SF{args.sf} correctness validation")
             sql_files[number] = path.read_text(encoding="utf-8-sig").strip().rstrip(";")
         schedule = []
         rng = random.Random(protocol["random_seed"])

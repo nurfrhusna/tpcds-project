@@ -1,4 +1,4 @@
-"""Publish small, reviewable SF1/SF10 evidence and a scaling table for the team."""
+"""Collect evidence and compare SF10 and, when provided, SF100 with SF1."""
 import argparse
 import csv
 import hashlib
@@ -18,31 +18,51 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--sf1-run', type=Path, required=True)
     parser.add_argument('--sf10-run', type=Path, required=True)
-    parser.add_argument('--validation-dir', type=Path, required=True)
+    parser.add_argument('--sf100-run', type=Path)
+    parser.add_argument('--validation-dir', type=Path, required=True, help='SF10 validation directory')
+    parser.add_argument('--sf100-validation-dir', type=Path)
     parser.add_argument('--output', type=Path, default=ROOT/'results')
     parser.add_argument('--host-info', type=Path, help='Optional reviewed hardware JSON with no personal identifiers')
     args = parser.parse_args()
-    validation = load(args.validation_dir/'validation.json')
-    if validation['status'] != 'PASS':
-        raise RuntimeError('SF10 correctness validation has not passed')
+    if bool(args.sf100_run) != bool(args.sf100_validation_dir):
+        parser.error('--sf100-run and --sf100-validation-dir must be supplied together')
     runs = {1: args.sf1_run, 10: args.sf10_run}
+    validation_dirs = {10: args.validation_dir}
+    if args.sf100_run:
+        runs[100] = args.sf100_run
+        validation_dirs[100] = args.sf100_validation_dir
     manifests = {sf: load(path/'manifest.json') for sf, path in runs.items()}
-    if manifests[1]['protocol'] != manifests[10]['protocol']:
-        raise RuntimeError('The SF1 and SF10 protocols differ')
-    if manifests[1]['query_hashes'] != manifests[10]['query_hashes']:
-        raise RuntimeError('The query files differ across scales')
-    if manifests[1]['server_version'] != manifests[10]['server_version']:
-        raise RuntimeError('The ClickHouse versions differ across scales')
-    if manifests[1]['schema_sha256'] != manifests[10]['schema_sha256']:
-        raise RuntimeError('The table schemas differ across scales')
-    if manifests[1]['runner_sha256'] != manifests[10]['runner_sha256']:
-        raise RuntimeError('The benchmark runner versions differ across scales')
+    inspections = {sf: load(path/'container.json') for sf, path in runs.items()}
+    baseline = manifests[1]
+    for sf, manifest in manifests.items():
+        if manifest['scale_factor'] != sf or manifest['status'] not in ('complete', 'complete_with_failures'):
+            raise RuntimeError(f'Expected a finished SF{sf} benchmark')
+        for key in ('protocol', 'query_hashes', 'schema_sha256', 'runner_sha256', 'server_version'):
+            if manifest[key] != baseline[key]:
+                raise RuntimeError(f'SF{sf} and SF1 differ in {key}')
+        if manifest.get('environment') != baseline.get('environment'):
+            raise RuntimeError(f'SF{sf} and SF1 differ in Docker engine or environment')
+        if inspections[sf]['Image'] != inspections[1]['Image']:
+            raise RuntimeError(f'SF{sf} and SF1 use different ClickHouse images')
+    if args.sf100_run and not baseline.get('environment'):
+        raise RuntimeError('Three-scale collection requires Docker environment evidence from each run')
+    for sf, directory in validation_dirs.items():
+        path = directory/'validation.json'
+        validation = load(path)
+        if (validation['status'] != 'PASS' or validation['scale_factor'] != sf or
+                validation['dataset_sha256'] != manifests[sf]['dataset_sha256'] or
+                hashlib.sha256(path.read_bytes()).hexdigest() != manifests[sf]['validation_sha256']):
+            raise RuntimeError(f'The SF{sf} validation report must match the one used for timing')
+    if baseline.get('environment'):
+        docker_environment = baseline['environment']['docker']
+    else:  # Keep collection compatible with the saved, earlier two-scale runs.
+        info = json.loads(docker('info', '--format', '{{json .}}'))
+        docker_environment = {k:info[k] for k in ['ServerVersion','OSType','Architecture','NCPU','MemTotal','KernelVersion']}
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=False)
-    info = json.loads(docker('info', '--format', '{{json .}}'))
     environment = {'platform':platform.platform(), 'architecture':platform.machine(),
                    'python_version':platform.python_version(), 'processor':platform.processor(),
-                   'docker':{k:info[k] for k in ['ServerVersion','OSType','Architecture','NCPU','MemTotal','KernelVersion']}}
+                   'docker':docker_environment}
     if args.host_info:
         environment['reviewed_host_details'] = load(args.host_info)
     save(output/'environment.json',environment)
@@ -52,8 +72,6 @@ def main():
         target = output/f'sf{sf}'
         target.mkdir()
         manifest = manifests[sf]
-        if manifest['status'] not in ('complete', 'complete_with_failures'):
-            raise RuntimeError('Benchmark did not finish: ' + str(sf))
         for filename in ['attempts.csv', 'attempts.jsonl', 'summary.json', 'schedule.json', 'tables_before.json', 'tables_after.json', 'running_containers.jsonl']:
             shutil.copyfile(path/filename,target/filename)
         for result in path.glob('query_*_output.jsonl'):
@@ -64,7 +82,7 @@ def main():
         defaults = [r for r in load(path/'server_defaults.json')
                     if r['name'] in manifest['protocol']['query_settings']]
         save(target/'session_defaults.json', defaults)
-        inspection = load(path/'container.json')
+        inspection = inspections[sf]
         save(target/'container_limits.json', {
             'image_name': inspection['Config']['Image'], 'image_id': inspection['Image'],
             'nano_cpus': inspection['HostConfig']['NanoCpus'],
@@ -75,28 +93,41 @@ def main():
         table_totals[sf] = {'rows': sum(int(r['rows']) for r in load(path/'tables_before.json')),
                             'bytes_on_disk': sum(int(r['bytes_on_disk']) for r in load(path/'tables_before.json'))}
         summaries[sf] = {int(r['query']): r for r in load(path/'summary.json')}
-    evidence = output/'sf10/validation'
-    evidence.mkdir()
-    for p in args.validation_dir.iterdir():
-        if p.is_file() and p.suffix in ('.json', '.jsonl', '.sql'):
-            shutil.copyfile(p,evidence/p.name)
+    for sf, directory in validation_dirs.items():
+        evidence = output/f'sf{sf}/validation'
+        evidence.mkdir()
+        for p in directory.iterdir():
+            if p.is_file() and p.suffix in ('.json', '.jsonl', '.sql'):
+                shutil.copyfile(p,evidence/p.name)
     rows = []
     for number in manifests[1]['protocol']['queries']:
         a,b = summaries[1][number], summaries[10][number]
         row = {'query': number, 'sf1_successful_runs': a['successful_runs'], 'sf10_successful_runs': b['successful_runs'],
                'sf1_failed_runs': a['failed_runs'], 'sf10_failed_runs': b['failed_runs']}
-        for metric in ['server_duration_ms', 'query_memory_bytes', 'query_cpu_seconds', 'read_rows', 'read_bytes']:
+        metrics = ['server_duration_ms', 'query_memory_bytes', 'query_cpu_seconds', 'read_rows', 'read_bytes']
+        for metric in metrics:
             left,right = a.get(metric+'_median'), b.get(metric+'_median')
             row['sf1_'+metric] = left
             row['sf10_'+metric] = right
-            row[metric+'_ratio'] = right/left if left else None
+            row[metric+'_ratio'] = right/left if left and right is not None else None
         row['sf1_duration_cv'] = a.get('duration_cv')
         row['sf10_duration_cv'] = b.get('duration_cv')
+        if 100 in summaries:
+            c = summaries[100][number]
+            row['sf100_successful_runs'] = c['successful_runs']
+            row['sf100_failed_runs'] = c['failed_runs']
+            row['sf100_duration_cv'] = c.get('duration_cv')
+            for metric in metrics:
+                base = row['sf1_'+metric]
+                large = c.get(metric+'_median')
+                row['sf100_'+metric] = large
+                row[metric+'_sf100_over_sf1'] = large/base if base and large is not None else None
         rows.append(row)
     with (output/'scaling_summary.csv').open('w',newline='',encoding='utf-8') as handle:
         writer = csv.DictWriter(handle,fieldnames=list(rows[0]))
         writer.writeheader(); writer.writerows(rows)
-    save(output/'scaling_summary.json', {'comparison':'SF10 / SF1; medians of successful measured runs',
+    comparison = 'SF10 / SF1 and SF100 / SF1' if 100 in summaries else 'SF10 / SF1'
+    save(output/'scaling_summary.json', {'comparison':comparison+'; medians of successful measured runs',
          'scope':'data-size scalability on one node; host physical disk throughput was not measured',
          'table_totals':table_totals, 'queries':rows})
     source_hashes = {p.relative_to(output).as_posix():hashlib.sha256(p.read_bytes()).hexdigest()

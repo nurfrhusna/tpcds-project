@@ -113,6 +113,7 @@ def prepare(args):
             hashes[table] = hashlib.file_digest(handle, "sha256").hexdigest()
     if args.sf == 1 and hashes != expected:
         raise RuntimeError("SF1 input hashes differ from the validated dataset. Use TPC-DS 4.0.0 default SF1 generation.")
+    fingerprint = hashlib.sha256(json.dumps(hashes, sort_keys=True).encode()).hexdigest()
     name = args.name or f"team12-m3-sf{args.sf}-{uuid.uuid4().hex[:8]}"
     volume = name + "-data"
     # Names are reserved for new resources. Refuse existing containers or volumes.
@@ -127,11 +128,13 @@ def prepare(args):
                                  "python": platform.python_version(),
                                  "docker_info": json.loads(docker("info", "--format", "{{json .}}"))})
     state = {"status": "preparing", "scale_factor": args.sf, "container": name,
-             "volume": volume, "data_directory": str(data), "sf1_hashes_match": args.sf == 1}
+             "volume": volume, "data_directory": str(data), "sf1_hashes_match": args.sf == 1,
+             "dataset_sha256": fingerprint}
     save(evidence / "state.json", state)
     try:
         docker("run", "-d", "--name", name, "--label", "tpcds.milestone=3",
                "--label", "tpcds.role=benchmark", "--network", "none",
+               "--label", "tpcds.dataset_sha256=" + fingerprint,
                "--cpus", PROTOCOL["container_cpus"],
                "--memory", PROTOCOL["container_memory_bytes"],
                "--memory-swap", PROTOCOL["container_memory_swap_bytes"],
@@ -170,7 +173,10 @@ def prepare(args):
         save(evidence / "state.json", state)
         print("Preparation evidence:", evidence)
     print("Container:", name)
-    print(f"Run: python run_controlled.py --container {name} --sf {args.sf}")
+    if args.sf == 1:
+        print(f"Run: python run_controlled.py --container {name} --sf 1")
+    else:
+        print("Validate against a Docker volume containing the identical raw files before timing.")
     print(f"After timing: docker stop {name}")
 
 
@@ -180,14 +186,14 @@ def main():
     p = commands.add_parser("build-toolkit", help="Build from an extracted official TPC-DS 4.0.0 source download")
     p.add_argument("--source-dir", type=Path, required=True)
     p.set_defaults(action=build)
-    p = commands.add_parser("generate", help="Generate new SF1 or SF10 files into an empty folder")
-    p.add_argument("--sf", type=int, choices=[1, 10], required=True)
+    p = commands.add_parser("generate", help="Generate new TPC-DS files")
+    p.add_argument("--sf", type=int, choices=PROTOCOL["scales"], required=True)
     p.add_argument("--output", type=Path)
     p.add_argument("--volume-only", action="store_true", help="Keep raw files inside Docker, without exporting them")
     p.add_argument("--volume-name", help="Optional new raw-data volume name; existing volumes are refused")
     p.set_defaults(action=generate)
     p = commands.add_parser("prepare", help="Load into a new isolated container and volume")
-    p.add_argument("--sf", type=int, choices=[1, 10], required=True)
+    p.add_argument("--sf", type=int, choices=PROTOCOL["scales"], required=True)
     p.add_argument("--data-dir", type=Path, required=True)
     p.add_argument("--name", help="Optional new container name")
     p.set_defaults(action=prepare)

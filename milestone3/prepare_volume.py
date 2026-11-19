@@ -22,7 +22,7 @@ def raw_inventory(volume):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--data-volume', required=True)
-    parser.add_argument('--sf', type=int, choices=[1, 10], required=True)
+    parser.add_argument('--sf', type=int, choices=PROTOCOL['scales'], required=True)
     parser.add_argument('--name', required=True)
     args = parser.parse_args()
     name, volume = args.name, args.name + '-data'

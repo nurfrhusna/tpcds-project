@@ -46,7 +46,7 @@ def inventory():
             'metadata': Path('/data/dbgen_version.dat').read_text().strip()}
 
 
-def reference():
+def reference(memory_limit_gb):
     import duckdb
     evidence = Path('/evidence')
     evidence.mkdir(exist_ok=True)
@@ -62,9 +62,12 @@ def reference():
         if database.exists():
             raise RuntimeError("Reference database already exists; use a fresh reference volume")
         connection = duckdb.connect(str(database))
-        connection.execute("SET memory_limit='4GB'")
+        connection.execute("SET memory_limit = ?", [f'{memory_limit_gb}GB'])
         connection.execute('SET threads=4')
         connection.execute("SET temp_directory='/reference/temp'")
+        # CSV input order is immaterial to the reference queries. Avoid retaining
+        # it while importing tables that are much larger than available memory.
+        connection.execute('SET preserve_insertion_order=false')
         counts = []
         for table, fields in sorted(SCHEMA.items()):
             print('DuckDB loading ' + table, file=sys.stderr, flush=True)
@@ -78,6 +81,7 @@ def reference():
                 raise RuntimeError('Reference row count mismatch: ' + table)
             counts.append({'table': table, 'reference_rows': count})
         save(evidence / 'reference_table_counts.json', counts)
+        connection.execute('SET preserve_insertion_order=true')
         for number in QUERIES:
             print('DuckDB checking Q' + str(number), file=sys.stderr, flush=True)
             source = (ROOT / f'queries/query_{number:02}.sql').read_text(encoding='utf-8-sig')
@@ -116,6 +120,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('command', choices=['inventory', 'convert', 'load', 'reference'])
     parser.add_argument('--table', choices=sorted(SCHEMA))
+    parser.add_argument('--memory-limit-gb', type=int, choices=[4, 7], default=4)
     args = parser.parse_args()
     if args.command == 'inventory':
         print(json.dumps(inventory()))
@@ -142,7 +147,7 @@ def main():
             finally:
                 connection.close()
     else:
-        reference()
+        reference(args.memory_limit_gb)
 
 
 if __name__ == '__main__':

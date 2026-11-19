@@ -1,15 +1,16 @@
 # Team 12 — Milestone 3: performance and data-size scalability
 
-This folder contains the team's reproducible SF1/SF10 ClickHouse experiment.
-Use [RESULTS.md](RESULTS.md) and `results/` for the paired measurements and
-correctness evidence. `examples/sf1/` contains the earlier SF1 pilot, which is
-kept for history and should not be mixed into the new paired comparison.
+This folder supports SF1, SF10, and SF100. For the Ryzen 7 9800X3D desktop,
+follow the [three-scale runbook](DESKTOP_SF100.md).
+
+[RESULTS.md](RESULTS.md) and `results/` contain the completed laptop experiment at
+SF1 and SF10. `examples/sf1/` contains the earlier SF1 pilot.
 
 The workload consists of Q3, Q7, Q31, Q47, Q64, and Q82. It runs on one
 ClickHouse node. These selected-query measurements are not official TPC-DS
 scores and do not establish distributed-node scalability.
 
-## Requirements
+## Requirements for the two-scale workflow below
 
 - Python 3.11 or newer. The recorded experiment used Python 3.12.
 - Docker Desktop with Linux containers, with `docker` available in the terminal.
@@ -118,8 +119,9 @@ result check stops the measurement. Measured errors are saved and counted.
 | Query-result / query-condition caches | Disabled / disabled |
 | Cache regime | Warm queries and filesystem caches; no OS cache eviction |
 
-`protocol.json` is unchanged from the initial experiment. Use the same computer,
-runner, schema, SQL, and settings for both scales. Different teammate PCs can
+`protocol.json` v2 adds SF100 and extends the time allowed for background merges
+to settle before timing. The measured query settings and schedule are the same.
+Use the same computer, runner, schema, SQL, and settings for both scales. Different teammate PCs can
 produce different runtimes even with the same container limits. Keep each PC's
 paired results separate.
 
@@ -170,7 +172,7 @@ cache behavior, concurrent-client throughput, or distributed-node scaling.
 - `project-snapshot/` preserves the team's SQL, schema, original importer, and SF1 counts.
 - `source_sha256.json` records the original project snapshot, including files not needed in this folder.
 - `validation/` contains the schema, dialect adapter, and canonical SQL carried forward from the successful Milestone 2 reference check.
-- `PACKAGE_VERIFICATION.json` records current verification. The earlier package verification is kept with the historical SF1 example.
+- `PACKAGE_VERIFICATION.json` records verification of the completed laptop experiment. Its hashes refer to the scripts at the time of that run.
 - `package_sha256.json` records the current shared file hashes, excluding itself and ignored local data.
 
 No new license is granted for third-party material. Keep its original notices

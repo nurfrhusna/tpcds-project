@@ -14,7 +14,8 @@ The comparator consumes each matching row once, so duplicates are preserved.
 Integers and decimals compare exactly. Floating-point values use relative
 tolerance `1e-9` and absolute tolerance `1e-8`. NULL matches only NULL.
 The unordered comparison and ordered equality are recorded separately.
-Every comparison must pass before the SF10 benchmark is allowed to start.
+Every comparison must pass before the SF10 or SF100 benchmark starts.
+For SF100, use the commands in [the desktop runbook](../DESKTOP_SF100.md).
 
 The explicit reference schema and `sql_dialect.py` come from the successful
 same-input Milestone 2 validation. The adapter changes `Float64` to `DOUBLE` in
@@ -61,10 +62,15 @@ python validate_results.py --data-volume team12-raw-sf10 --container team12-m3-s
 
 The output directory must not already exist. The optional final flag stops the
 experiment container after collecting its outputs and restarts it after the
-reference work. This frees RAM for DuckDB. The reference container uses 4 CPUs,
-a 6 GiB container limit, a 4 GB DuckDB memory limit, and a fresh disk-backed
-reference volume. Its execution times are validation diagnostics and are not
-used as ClickHouse benchmark measurements.
+reference work. This frees RAM for DuckDB. The reference container uses 4 CPUs
+and a fresh disk-backed volume. SF1 and SF10 use a 6 GiB container limit and a
+4 GB DuckDB limit. SF100 uses 10 GiB and 7 GB respectively. DuckDB can reorder
+rows while loading large CSV files to reduce memory pressure. The validator
+restores the default setting before running the six queries.
+See [DuckDB workload tuning](https://duckdb.org/docs/1.4/guides/performance/how_to_tune_workloads).
+These limits apply
+to correctness validation. ClickHouse keeps the same resource limits at every
+scale. Reference execution times are validation diagnostics.
 
 After the report says `PASS`, run the benchmark:
 

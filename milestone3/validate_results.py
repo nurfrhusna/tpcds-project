@@ -10,7 +10,7 @@ import uuid
 
 from manage import ROOT, PROTOCOL, docker, save
 from prepare_volume import IMAGE, raw_inventory
-from run_controlled import client, decode_rows, json_rows, query
+from run_controlled import client, decode_rows, query
 from validation_helpers import compare_bags, rows_equal
 
 
@@ -18,7 +18,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--data-volume', required=True)
     parser.add_argument('--container', required=True)
-    parser.add_argument('--sf', type=int, choices=[1, 10], required=True)
+    parser.add_argument('--sf', type=int, choices=PROTOCOL['scales'], required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--stop-clickhouse-during-reference', action='store_true',
                         help='Temporarily stop and restart this experiment container to free RAM')
@@ -39,7 +39,7 @@ def main():
             raise RuntimeError('Expected a Milestone 3 benchmark container')
         data = raw_inventory(args.data_volume)
         scale = re.search(r'-SCALE\s+(\d+)\b', data['metadata'])
-        if not scale or int(scale[1]) != args.sf:
+        if not data['metadata'].startswith('4.0.0|') or not scale or int(scale[1]) != args.sf:
             raise RuntimeError('Raw generator metadata does not match the requested scale')
         if labels.get('tpcds.dataset_sha256') != data['dataset_sha256']:
             raise RuntimeError('Container input fingerprint differs from the reference input files')
@@ -71,16 +71,22 @@ def main():
             docker('stop', '--timeout', '10', args.container)
             stopped = True
         reference_volume = 'team12-reference-sf' + str(args.sf) + '-' + uuid.uuid4().hex[:10]
+        reference_container_gib, duckdb_gb = (10, 7) if args.sf == 100 else (6, 4)
         report['reference_volume'] = reference_volume
+        report['reference_resources'] = {'cpus': 4, 'container_memory_gib': reference_container_gib,
+                                         'duckdb_memory_limit_gb': duckdb_gb}
         save(output / 'validation.json', report)
         docker('run', '--rm', '--label', 'tpcds.role=reference', '--network', 'none',
-               '--cpus', '4', '--memory', '6g', '--memory-swap', '6g',
+               '--cpus', '4', '--memory', f'{reference_container_gib}g', '--memory-swap', f'{reference_container_gib}g',
                '--mount', f'type=volume,source={args.data_volume},target=/data,readonly',
                '--mount', f'type=volume,source={reference_volume},target=/reference',
-               '--mount', f'type=bind,source={output},target=/evidence', IMAGE, 'reference', capture=False)
+               '--mount', f'type=bind,source={output},target=/evidence', IMAGE, 'reference',
+               '--memory-limit-gb', duckdb_gb, capture=False)
         reference_report = json.loads((output/'reference_report.json').read_text())
         if reference_report['status'] != 'PASS' or reference_report['dataset_sha256'] != report['dataset_sha256']:
             raise RuntimeError('Independent reference or input-fingerprint validation failed')
+        if sorted(q['query'] for q in reference_report['queries']) != sorted(PROTOCOL['queries']):
+            raise RuntimeError('The reference did not complete all six queries')
         report['reference_engine'] = reference_report['reference_engine']
         report['reference_version'] = reference_report['reference_version']
         ref_counts = {r['table']: r['reference_rows'] for r in json.loads((output/'reference_table_counts.json').read_text())}
