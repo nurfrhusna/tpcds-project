@@ -1,3 +1,4 @@
+name: tpcds-project
 
 services:
   clickhouse:

@@ -4,7 +4,7 @@ import subprocess
 from pathlib import Path
 
 PROJECT_DIR = Path(__file__).resolve().parent
-if PROJECT_DIR.name == "scripts":
+if PROJECT_DIR.name in ("scripts", "codes"):
     PROJECT_DIR = PROJECT_DIR.parent
 
 BATCH_SIZE = 4 * 1024 * 1024

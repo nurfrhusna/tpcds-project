@@ -26,7 +26,7 @@ __pycache__/
 Thumbs.db
 
 # Local benchmark measurements
-results/*.csv
+tpc-ds/results/*.csv
 
 # Extracted archive metadata
 .MACOSX/

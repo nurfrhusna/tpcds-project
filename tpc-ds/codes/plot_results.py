@@ -1,0 +1,92 @@
+import argparse
+import csv
+import re
+from pathlib import Path
+
+import matplotlib
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+
+ROOT = Path(__file__).resolve().parents[2]
+DEFAULT_SUMMARY = ROOT / "milestone3" / "results" / "scaling_summary.csv"
+DEFAULT_OUT = ROOT / "tpc-ds" / "figures"
+
+COLORS = ["#4C78A8", "#F58518", "#54A24B", "#B279A2"]
+
+METRICS = [
+    ("server_duration_ms", "Median runtime (ms)", "runtime", 1, True),
+    ("query_memory_bytes", "Median query memory (MiB)", "memory", 1 / 1048576, False),
+    ("query_cpu_seconds", "Median CPU time (s)", "cpu_time", 1, True),
+    ("read_bytes", "Median logical reads (MiB)", "logical_reads", 1 / 1048576, True),
+]
+
+
+def fmt(v):
+    return f"{v:,.0f}" if v >= 10 else f"{v:.2g}"
+
+
+def load(path):
+    with open(path, newline="") as f:
+        rows = list(csv.DictReader(f))
+    scales = sorted(
+        {int(m.group(1)) for k in rows[0] for m in [re.match(r"sf(\d+)_server_duration_ms$", k)] if m}
+    )
+    return rows, scales
+
+
+def grouped_bars(rows, scales, key, label, name, factor, log, out, title_note):
+    queries = [f"Q{r['query']}" for r in rows]
+    width = 0.8 / len(scales)
+    fig, ax = plt.subplots(figsize=(8, 4.2), dpi=150)
+    for i, sf in enumerate(scales):
+        values = [float(r[f"sf{sf}_{key}"]) * factor for r in rows]
+        xs = [x + (i - (len(scales) - 1) / 2) * width for x in range(len(rows))]
+        bars = ax.bar(xs, values, width, label=f"SF{sf}", color=COLORS[i % len(COLORS)])
+        ax.bar_label(bars, labels=[fmt(v) for v in values], fontsize=7, padding=2)
+    ax.set_xticks(range(len(rows)), queries)
+    ax.set_ylabel(label + (" (log scale)" if log else ""))
+    if log:
+        ax.set_yscale("log")
+    ax.set_title(f"{label.split(' (')[0]} by query{title_note}")
+    ax.legend(frameon=False)
+    ax.spines[["top", "right"]].set_visible(False)
+    fig.tight_layout()
+    fig.savefig(out / f"{name}.png")
+    plt.close(fig)
+
+
+def ratio_chart(rows, scales, out, title_note):
+    base, top = scales[0], scales[-1]
+    queries = [f"Q{r['query']}" for r in rows]
+    ratios = [float(r[f"sf{top}_server_duration_ms"]) / float(r[f"sf{base}_server_duration_ms"]) for r in rows]
+    fig, ax = plt.subplots(figsize=(8, 4.2), dpi=150)
+    bars = ax.bar(queries, ratios, color=COLORS[0])
+    ax.bar_label(bars, fmt="%.2fx", fontsize=8, padding=2)
+    ax.set_ylim(0, max(max(ratios), top / base) * 1.15)
+    ax.axhline(top / base, color="#BBBBBB", linestyle="--", linewidth=1, zorder=0)
+    ax.text(len(rows) - 0.5, top / base, f" {top // base}x data", va="bottom", ha="right", fontsize=8, color="#555555")
+    ax.set_ylabel(f"Runtime ratio SF{top} / SF{base}")
+    ax.set_title(f"Runtime growth from SF{base} to SF{top}{title_note}")
+    ax.spines[["top", "right"]].set_visible(False)
+    fig.tight_layout()
+    fig.savefig(out / "runtime_ratio.png")
+    plt.close(fig)
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Plot Milestone 3 scaling results")
+    parser.add_argument("--summary", type=Path, default=DEFAULT_SUMMARY)
+    parser.add_argument("--output", type=Path, default=DEFAULT_OUT)
+    parser.add_argument("--note", default="", help="Text appended to chart titles, e.g. ' (laptop)'")
+    args = parser.parse_args()
+    args.output.mkdir(parents=True, exist_ok=True)
+    rows, scales = load(args.summary)
+    for key, label, name, factor, log in METRICS:
+        grouped_bars(rows, scales, key, label, name, factor, log, args.output, args.note)
+    ratio_chart(rows, scales, args.output, args.note)
+    print(f"Wrote {len(METRICS) + 1} charts for SF{', SF'.join(map(str, scales))} to {args.output}")
+
+
+if __name__ == "__main__":
+    main()
