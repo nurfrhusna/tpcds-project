@@ -1,0 +1,14 @@
+{
+  "platform": "Linux-6.8.0-151-generic-x86_64-with-glibc2.39",
+  "architecture": "x86_64",
+  "python_version": "3.12.3",
+  "processor": "x86_64",
+  "docker": {
+    "ServerVersion": "singularity-ce version 4.5.0-noble (no Docker daemon)",
+    "OSType": "linux",
+    "Architecture": "x86_64",
+    "NCPU": 40,
+    "MemTotal": 269790158848,
+    "KernelVersion": "6.8.0-151-generic"
+  }
+}

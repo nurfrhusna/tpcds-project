@@ -1,0 +1,54 @@
+{
+  "protocol_id": "m3-warm-single-node-hpc-nolimit-v1",
+  "created_date_kst": "2026-11-24",
+  "experiment": "Data-volume scaling of six fixed TPC-DS query instances on one ClickHouse node",
+  "scales": [
+    1,
+    10,
+    100
+  ],
+  "queries": [
+    3,
+    7,
+    31,
+    47,
+    64,
+    82
+  ],
+  "clickhouse_image": "clickhouse/clickhouse-server:26.10.3.7",
+  "container_cpus": null,
+  "container_memory_bytes": null,
+  "container_memory_swap_bytes": null,
+  "query_settings": {
+    "use_query_cache": 0,
+    "use_query_condition_cache": 0,
+    "log_queries": 1,
+    "log_queries_probability": 1,
+    "log_profile_events": 1,
+    "log_query_settings": 1
+  },
+  "warmup_rounds": 2,
+  "measured_rounds": 7,
+  "query_order": "Ascending query number during warm-up; seeded shuffle for each measured round",
+  "random_seed": 20261117,
+  "concurrency": 1,
+  "cache_policy": "Warm queries; database files in RAM (/dev/shm); query-result and query-condition caches disabled; no per-query thread, memory or time limit set",
+  "load_policy": "Same schema and query files across scales; retain input and source hashes",
+  "merge_settle_timeout_seconds": 1800,
+  "settling_policy": "Wait for five consecutive seconds without merges or mutations, pause merges, then record active parts before warm-up",
+  "interference_policy": "Pause any Milestone 3 data generator during measured work; record running containers",
+  "failure_policy": "Persist errors and timeouts by query ID, cancel only timed-out experiment query IDs, and continue later query attempts",
+  "summary_policy": "Median, min, max, sample standard deviation and CV over successful measured runs; show success and failure counts",
+  "metrics": [
+    "server_duration_ms",
+    "client_elapsed_ms",
+    "read_rows",
+    "read_bytes",
+    "result_rows",
+    "query_memory_bytes",
+    "query_cpu_seconds",
+    "ProfileEvents",
+    "query_cache_usage"
+  ],
+  "measurement_scope": "Logical bytes read and Linux query profile I/O counters; host physical disk throughput is not measured by this protocol"
+}

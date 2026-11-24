@@ -1,0 +1,106 @@
+{
+  "status": "PASS",
+  "reference_engine": "DuckDB",
+  "reference_version": "1.4.1",
+  "started_utc": "2026-11-24T09:01:20.139826+00:00",
+  "queries": [
+    {
+      "query": 3,
+      "query_sha256": "6ca95fce0fdf8a4a04d69e0527b941f8e5e6d06d0de03eb76bc6df8fdf857e08",
+      "project_rows": 100,
+      "canonical_rows": 100,
+      "project_vs_canonical": {
+        "equal": true,
+        "missing_count": 0,
+        "extra_count": 0,
+        "first_missing": [],
+        "first_extra": []
+      },
+      "dialect_changes": [],
+      "reference_execution_seconds": 0.067891
+    },
+    {
+      "query": 7,
+      "query_sha256": "80b499aafefcd8cb122d57590b77857bd3b2ea47378e6f541b2b121dcf8c6bee",
+      "project_rows": 100,
+      "canonical_rows": 100,
+      "project_vs_canonical": {
+        "equal": true,
+        "missing_count": 0,
+        "extra_count": 0,
+        "first_missing": [],
+        "first_extra": []
+      },
+      "dialect_changes": [],
+      "reference_execution_seconds": 0.08713
+    },
+    {
+      "query": 31,
+      "query_sha256": "9b16723f99850103ef5ac5efabefbb0146862d9492765da8491b49eda83bc6c7",
+      "project_rows": 288,
+      "canonical_rows": 288,
+      "project_vs_canonical": {
+        "equal": true,
+        "missing_count": 0,
+        "extra_count": 0,
+        "first_missing": [],
+        "first_extra": []
+      },
+      "dialect_changes": [
+        "Float64 -> DOUBLE; retain floating-point division"
+      ],
+      "reference_execution_seconds": 0.087722
+    },
+    {
+      "query": 47,
+      "query_sha256": "d7744132f971a786119dcba5170844dd2719eec47430b10d3694013c7b21e49e",
+      "project_rows": 100,
+      "canonical_rows": 100,
+      "project_vs_canonical": {
+        "equal": true,
+        "missing_count": 0,
+        "extra_count": 0,
+        "first_missing": [],
+        "first_extra": []
+      },
+      "dialect_changes": [
+        "Outer-query v1 qualifiers -> v2; no predicate changes"
+      ],
+      "reference_execution_seconds": 0.272332
+    },
+    {
+      "query": 64,
+      "query_sha256": "679d82e676d47cb7d1437cdae5b11cf48339f9c4a77c03eb879043953e186de0",
+      "project_rows": 33,
+      "canonical_rows": 33,
+      "project_vs_canonical": {
+        "equal": true,
+        "missing_count": 0,
+        "extra_count": 0,
+        "first_missing": [],
+        "first_extra": []
+      },
+      "dialect_changes": [],
+      "reference_execution_seconds": 0.224158
+    },
+    {
+      "query": 82,
+      "query_sha256": "0efea0cddd801d318554ebf08705211c94ff190ad7501d3a3753f72170abc697",
+      "project_rows": 6,
+      "canonical_rows": 6,
+      "project_vs_canonical": {
+        "equal": true,
+        "missing_count": 0,
+        "extra_count": 0,
+        "first_missing": [],
+        "first_extra": []
+      },
+      "dialect_changes": [
+        "ClickHouse CAST(value, 'date') -> SQL CAST(value AS DATE)"
+      ],
+      "reference_execution_seconds": 0.045759
+    }
+  ],
+  "dataset_sha256": "aa57f593ddf2c2f714d7b68c452dab67eba9a90bc4aea78db5e26da6d7a6e911",
+  "finished_utc": "2026-11-24T09:02:16.083756+00:00"
+}
