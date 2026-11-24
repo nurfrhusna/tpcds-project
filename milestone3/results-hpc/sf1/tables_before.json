@@ -1,0 +1,194 @@
+[
+  {
+    "table": "call_center",
+    "active_parts": 1,
+    "rows": 6,
+    "bytes_on_disk": 7778,
+    "compressed_bytes": 2411,
+    "uncompressed_bytes": 3130
+  },
+  {
+    "table": "catalog_page",
+    "active_parts": 1,
+    "rows": 11718,
+    "bytes_on_disk": 698361,
+    "compressed_bytes": 683964,
+    "uncompressed_bytes": 1996302
+  },
+  {
+    "table": "catalog_returns",
+    "active_parts": 1,
+    "rows": 144067,
+    "bytes_on_disk": 14072928,
+    "compressed_bytes": 13992272,
+    "uncompressed_bytes": 28381199
+  },
+  {
+    "table": "catalog_sales",
+    "active_parts": 2,
+    "rows": 1441548,
+    "bytes_on_disk": 170832530,
+    "compressed_bytes": 170605831,
+    "uncompressed_bytes": 334439136
+  },
+  {
+    "table": "customer",
+    "active_parts": 1,
+    "rows": 100000,
+    "bytes_on_disk": 8447661,
+    "compressed_bytes": 8407680,
+    "uncompressed_bytes": 24040933
+  },
+  {
+    "table": "customer_address",
+    "active_parts": 1,
+    "rows": 50000,
+    "bytes_on_disk": 2469805,
+    "compressed_bytes": 2447696,
+    "uncompressed_bytes": 9063815
+  },
+  {
+    "table": "customer_demographics",
+    "active_parts": 2,
+    "rows": 1920800,
+    "bytes_on_disk": 9144942,
+    "compressed_bytes": 9125340,
+    "uncompressed_bytes": 153664000
+  },
+  {
+    "table": "date_dim",
+    "active_parts": 1,
+    "rows": 73049,
+    "bytes_on_disk": 1816949,
+    "compressed_bytes": 1770536,
+    "uncompressed_bytes": 14025408
+  },
+  {
+    "table": "household_demographics",
+    "active_parts": 1,
+    "rows": 7200,
+    "bytes_on_disk": 35209,
+    "compressed_bytes": 30780,
+    "uncompressed_bytes": 367200
+  },
+  {
+    "table": "income_band",
+    "active_parts": 1,
+    "rows": 20,
+    "bytes_on_disk": 1600,
+    "compressed_bytes": 379,
+    "uncompressed_bytes": 520
+  },
+  {
+    "table": "inventory",
+    "active_parts": 2,
+    "rows": 11745000,
+    "bytes_on_disk": 59043707,
+    "compressed_bytes": 59008029,
+    "uncompressed_bytes": 340605000
+  },
+  {
+    "table": "item",
+    "active_parts": 1,
+    "rows": 18000,
+    "bytes_on_disk": 2429527,
+    "compressed_bytes": 2394680,
+    "uncompressed_bytes": 9614706
+  },
+  {
+    "table": "promotion",
+    "active_parts": 1,
+    "rows": 300,
+    "bytes_on_disk": 26773,
+    "compressed_bytes": 17357,
+    "uncompressed_bytes": 58489
+  },
+  {
+    "table": "reason",
+    "active_parts": 1,
+    "rows": 75,
+    "bytes_on_disk": 4196,
+    "compressed_bytes": 1558,
+    "uncompressed_bytes": 9375
+  },
+  {
+    "table": "ship_mode",
+    "active_parts": 1,
+    "rows": 20,
+    "bytes_on_disk": 3052,
+    "compressed_bytes": 1066,
+    "uncompressed_bytes": 2160
+  },
+  {
+    "table": "store",
+    "active_parts": 1,
+    "rows": 12,
+    "bytes_on_disk": 8184,
+    "compressed_bytes": 2717,
+    "uncompressed_bytes": 4952
+  },
+  {
+    "table": "store_returns",
+    "active_parts": 1,
+    "rows": 287514,
+    "bytes_on_disk": 20541882,
+    "compressed_bytes": 20478173,
+    "uncompressed_bytes": 38526876
+  },
+  {
+    "table": "store_sales",
+    "active_parts": 3,
+    "rows": 2880404,
+    "bytes_on_disk": 224423602,
+    "compressed_bytes": 224177632,
+    "uncompressed_bytes": 429180196
+  },
+  {
+    "table": "time_dim",
+    "active_parts": 1,
+    "rows": 86400,
+    "bytes_on_disk": 1100347,
+    "compressed_bytes": 1087357,
+    "uncompressed_bytes": 10454400
+  },
+  {
+    "table": "warehouse",
+    "active_parts": 1,
+    "rows": 5,
+    "bytes_on_disk": 3592,
+    "compressed_bytes": 919,
+    "uncompressed_bytes": 969
+  },
+  {
+    "table": "web_page",
+    "active_parts": 1,
+    "rows": 60,
+    "bytes_on_disk": 6851,
+    "compressed_bytes": 2513,
+    "uncompressed_bytes": 9900
+  },
+  {
+    "table": "web_returns",
+    "active_parts": 1,
+    "rows": 71763,
+    "bytes_on_disk": 6570295,
+    "compressed_bytes": 6495237,
+    "uncompressed_bytes": 12199710
+  },
+  {
+    "table": "web_sales",
+    "active_parts": 1,
+    "rows": 719384,
+    "bytes_on_disk": 85153373,
+    "compressed_bytes": 85042492,
+    "uncompressed_bytes": 166897088
+  },
+  {
+    "table": "web_site",
+    "active_parts": 1,
+    "rows": 30,
+    "bytes_on_disk": 11751,
+    "compressed_bytes": 5440,
+    "uncompressed_bytes": 13400
+  }
+]

@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_SUMMARY = ROOT / "milestone3" / "results" / "scaling_summary.csv"
 DEFAULT_OUT = ROOT / "tpc-ds" / "figures"
 
-COLORS = ["#4C78A8", "#F58518", "#54A24B", "#B279A2"]
+COLORS = ["#86b6ef", "#2a78d6", "#104281"]  # one hue, light to dark, because scale factors are ordered
 
 METRICS = [
     ("server_duration_ms", "Median runtime (ms)", "runtime", 1, True),
@@ -57,17 +57,26 @@ def grouped_bars(rows, scales, key, label, name, factor, log, out, title_note):
 
 
 def ratio_chart(rows, scales, out, title_note):
-    base, top = scales[0], scales[-1]
     queries = [f"Q{r['query']}" for r in rows]
-    ratios = [float(r[f"sf{top}_server_duration_ms"]) / float(r[f"sf{base}_server_duration_ms"]) for r in rows]
+    steps = list(zip(scales, scales[1:]))
+    width = 0.8 / len(steps)
     fig, ax = plt.subplots(figsize=(8, 4.2), dpi=150)
-    bars = ax.bar(queries, ratios, color=COLORS[0])
-    ax.bar_label(bars, fmt="%.2fx", fontsize=8, padding=2)
-    ax.set_ylim(0, max(max(ratios), top / base) * 1.15)
-    ax.axhline(top / base, color="#BBBBBB", linestyle="--", linewidth=1, zorder=0)
-    ax.text(len(rows) - 0.5, top / base, f" {top // base}x data", va="bottom", ha="right", fontsize=8, color="#555555")
-    ax.set_ylabel(f"Runtime ratio SF{top} / SF{base}")
-    ax.set_title(f"Runtime growth from SF{base} to SF{top}{title_note}")
+    top = 0
+    for i, (low, high) in enumerate(steps):
+        ratios = [float(r[f"sf{high}_server_duration_ms"]) / float(r[f"sf{low}_server_duration_ms"]) for r in rows]
+        top = max(top, *ratios, high / low)
+        xs = [x + (i - (len(steps) - 1) / 2) * width for x in range(len(rows))]
+        bars = ax.bar(xs, ratios, width, label=f"SF{low} to SF{high}", color=COLORS[(i + 1) % len(COLORS)])
+        ax.bar_label(bars, fmt="%.1fx", fontsize=8, padding=2)
+    growth = steps[0][1] / steps[0][0]
+    ax.axhline(growth, color="#BBBBBB", linestyle="--", linewidth=1, zorder=0)
+    ax.text(len(rows) - 0.5, growth, f" {growth:.0f}x", va="bottom", ha="right", fontsize=8, color="#555555")
+    ax.set_ylim(0, top * 1.15)
+    ax.set_xticks(range(len(rows)), queries)
+    ax.set_ylabel("Runtime ratio")
+    ax.set_title(f"Runtime growth for each {growth:.0f}x step in scale factor{title_note}")
+    if len(steps) > 1:
+        ax.legend(frameon=False)
     ax.spines[["top", "right"]].set_visible(False)
     fig.tight_layout()
     fig.savefig(out / "runtime_ratio.png")

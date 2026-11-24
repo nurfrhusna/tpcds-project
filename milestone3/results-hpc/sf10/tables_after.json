@@ -1,0 +1,146 @@
+[
+  {
+    "table": "call_center",
+    "active_parts": 1,
+    "rows": 24,
+    "bytes_on_disk": 12606
+  },
+  {
+    "table": "catalog_page",
+    "active_parts": 1,
+    "rows": 12000,
+    "bytes_on_disk": 714647
+  },
+  {
+    "table": "catalog_returns",
+    "active_parts": 2,
+    "rows": 1439749,
+    "bytes_on_disk": 142954118
+  },
+  {
+    "table": "catalog_sales",
+    "active_parts": 2,
+    "rows": 14401261,
+    "bytes_on_disk": 1129267774
+  },
+  {
+    "table": "customer",
+    "active_parts": 1,
+    "rows": 500000,
+    "bytes_on_disk": 42183054
+  },
+  {
+    "table": "customer_address",
+    "active_parts": 1,
+    "rows": 250000,
+    "bytes_on_disk": 12271779
+  },
+  {
+    "table": "customer_demographics",
+    "active_parts": 2,
+    "rows": 1920800,
+    "bytes_on_disk": 9144942
+  },
+  {
+    "table": "date_dim",
+    "active_parts": 1,
+    "rows": 73049,
+    "bytes_on_disk": 1816949
+  },
+  {
+    "table": "household_demographics",
+    "active_parts": 1,
+    "rows": 7200,
+    "bytes_on_disk": 35209
+  },
+  {
+    "table": "income_band",
+    "active_parts": 1,
+    "rows": 20,
+    "bytes_on_disk": 1600
+  },
+  {
+    "table": "inventory",
+    "active_parts": 6,
+    "rows": 133110000,
+    "bytes_on_disk": 331621855
+  },
+  {
+    "table": "item",
+    "active_parts": 1,
+    "rows": 102000,
+    "bytes_on_disk": 13566090
+  },
+  {
+    "table": "promotion",
+    "active_parts": 1,
+    "rows": 500,
+    "bytes_on_disk": 38489
+  },
+  {
+    "table": "reason",
+    "active_parts": 1,
+    "rows": 75,
+    "bytes_on_disk": 4196
+  },
+  {
+    "table": "ship_mode",
+    "active_parts": 1,
+    "rows": 20,
+    "bytes_on_disk": 3052
+  },
+  {
+    "table": "store",
+    "active_parts": 1,
+    "rows": 102,
+    "bytes_on_disk": 25228
+  },
+  {
+    "table": "store_returns",
+    "active_parts": 3,
+    "rows": 2875432,
+    "bytes_on_disk": 209492958
+  },
+  {
+    "table": "store_sales",
+    "active_parts": 6,
+    "rows": 28800991,
+    "bytes_on_disk": 1530375384
+  },
+  {
+    "table": "time_dim",
+    "active_parts": 1,
+    "rows": 86400,
+    "bytes_on_disk": 1100347
+  },
+  {
+    "table": "warehouse",
+    "active_parts": 1,
+    "rows": 10,
+    "bytes_on_disk": 4464
+  },
+  {
+    "table": "web_page",
+    "active_parts": 1,
+    "rows": 200,
+    "bytes_on_disk": 12844
+  },
+  {
+    "table": "web_returns",
+    "active_parts": 1,
+    "rows": 719217,
+    "bytes_on_disk": 65873811
+  },
+  {
+    "table": "web_sales",
+    "active_parts": 2,
+    "rows": 7197566,
+    "bytes_on_disk": 600489808
+  },
+  {
+    "table": "web_site",
+    "active_parts": 1,
+    "rows": 42,
+    "bytes_on_disk": 14884
+  }
+]

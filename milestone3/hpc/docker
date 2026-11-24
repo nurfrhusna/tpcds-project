@@ -1,0 +1,279 @@
+#!/usr/bin/env python3
+"""Maps the few Docker commands used by the Milestone 3 scripts to Singularity on a Slurm node.
+
+The cluster has no Docker daemon. With this file first on PATH, manage.py, prepare_volume.py,
+validate_results.py, run_controlled.py and collect_results.py run unmodified. Reported limits are
+read from the Slurm job's cgroup and CPU affinity, not copied from the command line.
+
+Environment:
+  TPCDS_STATE    directory with container records, volumes/ and images/
+  TPCDS_SIF      ClickHouse SIF pulled from clickhouse/clickhouse-server:26.10.3.7
+  TPCDS_PYSIF    Python SIF pulled from python:3.12-slim-bookworm
+  TPCDS_APP      directory laid out like /app in validation/Dockerfile, plus site/ (duckdb 1.4.1)
+  TPCDS_PIN      optional taskset CPU list for the server (load phase only)
+"""
+import hashlib
+import json
+import os
+import platform
+import secrets
+import signal
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+ST = Path(os.environ["TPCDS_STATE"])
+VOL = ST / "volumes"
+REC = ST / "containers"
+CH_IMAGE = "clickhouse/clickhouse-server:26.10.3.7"
+VAL_IMAGE = "team12-tpcds-validation:1.4.1"
+for d in (VOL, REC):
+    d.mkdir(parents=True, exist_ok=True)
+
+
+def die(text):
+    print(text, file=sys.stderr)
+    sys.exit(1)
+
+
+def cgroup_limits():
+    path = "/sys/fs/cgroup" + next(l.split("::", 1)[1].strip() for l in open("/proc/self/cgroup") if l.startswith("0::"))
+    found = {}
+    while path != "/sys/fs/cgroup":
+        for name in ("memory.high", "memory.max", "memory.swap.max"):
+            f = Path(path, name)
+            if f.exists():
+                v = f.read_text().strip()
+                if v != "max":
+                    found[name] = min(int(v), found.get(name, int(v)))
+        path = os.path.dirname(path)
+    return found
+
+
+def host_config():
+    c = cgroup_limits()
+    memory = c.get("memory.max") or 0
+    swap = memory + c.get("memory.swap.max", 0)
+    return {"NanoCpus": len(os.sched_getaffinity(0)) * 1000000000, "Memory": memory, "MemorySwap": swap,
+            "NetworkMode": "host-loopback", "SlurmCgroup": c, "SlurmJob": os.environ.get("SLURM_JOB_ID")}
+
+
+def record(name):
+    f = REC / (name + ".json")
+    return json.loads(f.read_text()) if f.exists() else None
+
+
+def put(rec):
+    (REC / (rec["name"] + ".json")).write_text(json.dumps(rec))
+
+
+def alive(rec):
+    try:
+        cmd = Path(f"/proc/{rec['pid']}/cmdline").read_bytes()
+        return b"clickhouse" in cmd or b"singularity" in cmd or b"Singularity" in cmd
+    except (OSError, KeyError, TypeError):
+        return False
+
+
+def volume(name):
+    spill = os.environ.get("TPCDS_REFERENCE_DIR")
+    if spill and name.startswith("team12-reference-"):
+        return Path(spill) / name
+    return VOL / name
+
+
+def singularity(binds, image, command, pwd="/", env=None):
+    args = ["singularity", "--silent", "exec", "--cleanenv", "--no-home", "--pwd", pwd]
+    for source, target in binds:
+        args += ["--bind", f"{source}:{target}"]
+    for k, v in (env or {}).items():
+        args += ["--env", f"{k}={v}"]
+    return args + [image] + command
+
+
+def start_server(rec):
+    home = REC / rec["name"]
+    home.mkdir(exist_ok=True)
+    for d in ("log", "run", "cfgd", "usersd", "clientd"):
+        (home / d).mkdir(exist_ok=True)
+    pw = home / "pw"
+    if not pw.exists():
+        pw.write_text(secrets.token_hex(16))
+        pw.chmod(0o600)
+    digest = hashlib.sha256(pw.read_text().encode()).hexdigest()
+    # Merged source parts are dropped quickly because the store sits in RAM (/dev/shm) on the node.
+    (home / "cfgd/hpc.xml").write_text("<clickhouse><listen_host>127.0.0.1</listen_host>"
+                                       "<merge_tree><old_parts_lifetime>2</old_parts_lifetime><cleanup_delay_period>1</cleanup_delay_period>"
+                                       "<max_cleanup_delay_period>2</max_cleanup_delay_period>"
+                                       "<cleanup_delay_period_random_add>0</cleanup_delay_period_random_add></merge_tree></clickhouse>\n")
+    (home / "usersd/hpc.xml").write_text("<clickhouse><users><default><password remove='1'/>"
+                                         f"<password_sha256_hex>{digest}</password_sha256_hex></default></users></clickhouse>\n")
+    (home / "clientd/hpc.xml").write_text(f"<config><password>{pw.read_text()}</password><host>127.0.0.1</host></config>\n")
+    for f in (home / "usersd/hpc.xml", home / "clientd/hpc.xml"):
+        f.chmod(0o600)
+    data = volume(rec["volume"])
+    data.mkdir(exist_ok=True)
+    binds = [(data, "/var/lib/clickhouse"), (home / "log", "/var/log/clickhouse-server"),
+             (home / "cfgd", "/etc/clickhouse-server/config.d"), (home / "usersd", "/etc/clickhouse-server/users.d")]
+    cmd = singularity(binds, os.environ["TPCDS_SIF"],
+                      ["/usr/bin/clickhouse-server", "--config-file=/etc/clickhouse-server/config.xml"], pwd="/var/lib/clickhouse")
+    pin = os.environ.get("TPCDS_PIN")
+    if pin:
+        cmd = ["taskset", "-c", pin] + cmd
+    with open(home / "stdout.txt", "ab") as out:
+        p = subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=out, stderr=out, start_new_session=True)
+    rec["pid"] = p.pid
+    put(rec)
+
+
+def stop_server(rec):
+    if alive(rec):
+        os.killpg(rec["pid"], signal.SIGTERM)
+        for _ in range(240):
+            if not alive(rec):
+                break
+            time.sleep(0.5)
+        else:
+            os.killpg(rec["pid"], signal.SIGKILL)
+    rec["pid"] = None
+    put(rec)
+
+
+def parse(args, valued):
+    opts, rest = [], list(args)
+    while rest and rest[0].startswith("-"):
+        key = rest.pop(0)
+        if "=" in key:
+            k, v = key.split("=", 1)
+            opts.append((k, v))
+        elif key in valued:
+            opts.append((key, rest.pop(0)))
+        else:
+            opts.append((key, True))
+    return opts, rest
+
+
+def mounts(opts):
+    out = []
+    for k, v in opts:
+        if k == "--mount":
+            m = dict(p.split("=", 1) if "=" in p else (p, True) for p in v.split(","))
+            source = volume(m["source"]) if m["type"] == "volume" else Path(m["source"])
+            source.mkdir(parents=True, exist_ok=True)
+            out.append((str(source) , m["target"] + (":ro" if "readonly" in m else "")))
+    return out
+
+
+VALUED = {"--name", "--label", "--network", "--cpus", "--memory", "--memory-swap", "--mount", "--entrypoint", "--format",
+          "--filter", "--timeout", "--rm-none"}
+
+
+def run(args):
+    opts, rest = parse(args, VALUED)
+    image, command = rest[0], rest[1:]
+    if image == CH_IMAGE:
+        name = dict(opts)["--name"]
+        labels = dict(v.split("=", 1) for k, v in opts if k == "--label")
+        source = next(v for k, v in opts if k == "--mount")
+        vol = dict(p.split("=", 1) for p in source.split(",") if "=" in p)["source"]
+        rec = {"name": name, "labels": labels, "volume": vol, "image": CH_IMAGE}
+        start_server(rec)
+        print(name)
+    elif image == VAL_IMAGE:
+        app = os.environ["TPCDS_APP"]
+        binds = mounts(opts) + [(app, "/app:ro")]
+        env = {"PYTHONPATH": "/app:/app/site"}
+        runner = ["python", "/app/worker.py"] + command
+        net = dict(opts).get("--network", "")
+        if net.startswith("container:"):
+            # No private network namespace here, so the server has a password and the loader adds it.
+            home = REC / net.split(":", 1)[1]
+            binds.append((str(home / "pw"), "/pw:ro"))
+            code = ("import http.client,runpy,sys\n"
+                    "pw=open('/pw').read().strip()\n"
+                    "r=http.client.HTTPConnection.request\n"
+                    "def request(self,m,u,body=None,headers={},**k):\n"
+                    "    return r(self,m,u,body=body,headers=dict(headers,**{'X-ClickHouse-User':'default','X-ClickHouse-Key':pw}),**k)\n"
+                    "http.client.HTTPConnection.request=request\n"
+                    "sys.argv=['/app/worker.py']+sys.argv[1:]\n"
+                    "runpy.run_path('/app/worker.py',run_name='__main__')\n")
+            runner = ["python", "-c", code] + command
+        cmd = singularity(binds, os.environ["TPCDS_PYSIF"], runner, env=env)
+        cap = os.environ.get("TPCDS_HELPER_PIN")
+        sys.exit(subprocess.call((["taskset", "-c", cap] if cap else []) + cmd))
+    else:
+        die("unsupported image " + image)
+
+
+def execute(args):
+    opts, rest = parse(args, set())
+    name, command = rest[0], rest[1:]
+    rec = record(name) or die("No such container: " + name)
+    if not alive(rec):
+        die(f"Container {name} is not running")
+    if command[0] != "clickhouse-client":
+        die("unsupported exec " + command[0])
+    binds = [(REC / name / "clientd", "/etc/clickhouse-client/config.d")]
+    cmd = singularity(binds, os.environ["TPCDS_SIF"], ["/usr/bin/clickhouse-client"] + command[1:])
+    os.execvp(cmd[0], cmd)
+
+
+def image_id():
+    f = ST / "images.json"
+    return json.loads(f.read_text()) if f.exists() else {}
+
+
+def main():
+    a = sys.argv[1:]
+    if not a:
+        die("docker adapter: no command")
+    c, args = a[0], a[1:]
+    if c == "info":
+        mem = int(next(l for l in open("/proc/meminfo") if l.startswith("MemTotal")).split()[1]) * 1024
+        ver = subprocess.run(["singularity", "--version"], capture_output=True, text=True).stdout.strip()
+        print(json.dumps({"ID": "singularity:" + platform.node(), "ServerVersion": ver + " (no Docker daemon)", "OSType": "linux",
+                          "Architecture": platform.machine(), "NCPU": os.cpu_count(), "MemTotal": mem,
+                          "KernelVersion": platform.release()}))
+    elif c == "volume" and args[0] == "ls":
+        print("\n".join(p.name for p in sorted(VOL.iterdir())))
+    elif c == "volume" and args[0] == "inspect":
+        if not volume(args[1]).is_dir():
+            die("No such volume: " + args[1])
+        print(json.dumps([{"Name": args[1], "Mountpoint": str(volume(args[1]))}]))
+    elif c == "image" and args[0] == "inspect":
+        print(json.dumps([{"Id": image_id().get(args[1], "unknown")}]))
+    elif c == "run":
+        run(args)
+    elif c == "exec":
+        execute(args)
+    elif c == "inspect":
+        rec = record(args[-1]) or die("No such container: " + args[-1])
+        print(json.dumps([{"Name": rec["name"], "Image": image_id().get(CH_IMAGE, "unknown"),
+                           "State": {"Running": alive(rec), "Paused": False},
+                           "Config": {"Image": rec["image"], "Labels": rec["labels"]}, "HostConfig": host_config()}]))
+    elif c in ("ps", "container"):
+        if c == "container":
+            args = args[1:]
+        opts, _ = parse(args, VALUED)
+        o = dict(opts)
+        recs = [json.loads(f.read_text()) for f in sorted(REC.glob("*.json"))]
+        if "-a" not in o:
+            recs = [r for r in recs if alive(r)]
+        if "--filter" in o:
+            key = o["--filter"].split("=", 1)[1]
+            recs = [r for r in recs if key in r["labels"]]
+        for r in recs:
+            print(json.dumps({"Names": r["name"], "Image": r["image"]}) if "json" in o.get("--format", "") else r["name"])
+    elif c == "stop":
+        stop_server(record(args[-1]) or die("No such container: " + args[-1]))
+        print(args[-1])
+    elif c == "start":
+        start_server(record(args[-1]) or die("No such container: " + args[-1]))
+        print(args[-1])
+    else:
+        die("unsupported docker command: " + " ".join(a))
+
+
+if __name__ == "__main__":
+    main()
