@@ -1,0 +1,134 @@
+{
+  "status": "complete",
+  "scale_factor": 100,
+  "container": "sf100",
+  "protocol": {
+    "protocol_id": "m3-warm-single-node-hpc-v1",
+    "created_date_kst": "2026-11-24",
+    "experiment": "Data-volume scaling of six fixed TPC-DS query instances on one ClickHouse node",
+    "scales": [
+      1,
+      10,
+      100
+    ],
+    "queries": [
+      3,
+      7,
+      31,
+      47,
+      64,
+      82
+    ],
+    "clickhouse_image": "clickhouse/clickhouse-server:26.10.3.7",
+    "container_cpus": null,
+    "container_memory_bytes": null,
+    "container_memory_swap_bytes": null,
+    "query_settings": {
+      "max_threads": 4,
+      "max_memory_usage": 6442450944,
+      "max_execution_time": 300,
+      "timeout_overflow_mode": "throw",
+      "use_query_cache": 0,
+      "use_query_condition_cache": 0,
+      "log_queries": 1,
+      "log_queries_probability": 1,
+      "log_profile_events": 1,
+      "log_query_settings": 1
+    },
+    "warmup_rounds": 2,
+    "measured_rounds": 7,
+    "query_order": "Ascending query number during warm-up; seeded shuffle for each measured round",
+    "random_seed": 20261117,
+    "concurrency": 1,
+    "cache_policy": "Warm queries; database files in RAM (/dev/shm); query-result and query-condition caches disabled",
+    "load_policy": "Same schema and query files across scales; retain input and source hashes",
+    "merge_settle_timeout_seconds": 1800,
+    "settling_policy": "Wait for five consecutive seconds without merges or mutations, pause merges, then record active parts before warm-up",
+    "interference_policy": "Pause any Milestone 3 data generator during measured work; record running containers",
+    "failure_policy": "Persist errors and timeouts by query ID, cancel only timed-out experiment query IDs, and continue later query attempts",
+    "summary_policy": "Median, min, max, sample standard deviation and CV over successful measured runs; show success and failure counts",
+    "metrics": [
+      "server_duration_ms",
+      "client_elapsed_ms",
+      "read_rows",
+      "read_bytes",
+      "result_rows",
+      "query_memory_bytes",
+      "query_cpu_seconds",
+      "ProfileEvents",
+      "query_cache_usage"
+    ],
+    "measurement_scope": "Logical bytes read and Linux query profile I/O counters; host physical disk throughput is not measured by this protocol"
+  },
+  "query_hashes": {
+    "3": "6ca95fce0fdf8a4a04d69e0527b941f8e5e6d06d0de03eb76bc6df8fdf857e08",
+    "7": "80b499aafefcd8cb122d57590b77857bd3b2ea47378e6f541b2b121dcf8c6bee",
+    "31": "9b16723f99850103ef5ac5efabefbb0146862d9492765da8491b49eda83bc6c7",
+    "47": "d7744132f971a786119dcba5170844dd2719eec47430b10d3694013c7b21e49e",
+    "64": "679d82e676d47cb7d1437cdae5b11cf48339f9c4a77c03eb879043953e186de0",
+    "82": "0efea0cddd801d318554ebf08705211c94ff190ad7501d3a3753f72170abc697"
+  },
+  "sf1_regression": {},
+  "runner_sha256": "3f6ea2cf08e66d3194e0d9bfaf2a6d4275e2e6b21fcc9878660812720d9b7b80",
+  "protocol_sha256": "ad256ba92f0a2ad2af4f92f52038ff226fe37d0cc8512c07aaf4977a315fcdf7",
+  "schema_sha256": "35b4c6775e825e2e944d918c62dc33c2ac6b77b75351b7727723a2edf7a624dc",
+  "result_regression": {
+    "3": {
+      "equal": true,
+      "missing_count": 0,
+      "extra_count": 0,
+      "first_missing": [],
+      "first_extra": []
+    },
+    "7": {
+      "equal": true,
+      "missing_count": 0,
+      "extra_count": 0,
+      "first_missing": [],
+      "first_extra": []
+    },
+    "31": {
+      "equal": true,
+      "missing_count": 0,
+      "extra_count": 0,
+      "first_missing": [],
+      "first_extra": []
+    },
+    "47": {
+      "equal": true,
+      "missing_count": 0,
+      "extra_count": 0,
+      "first_missing": [],
+      "first_extra": []
+    },
+    "64": {
+      "equal": true,
+      "missing_count": 0,
+      "extra_count": 0,
+      "first_missing": [],
+      "first_extra": []
+    },
+    "82": {
+      "equal": true,
+      "missing_count": 0,
+      "extra_count": 0,
+      "first_missing": [],
+      "first_extra": []
+    }
+  },
+  "validation_sha256": "bfc6fcf57d2749d79e37f8231a212b7551d54aa887fecd82f456bad7b18dc07f",
+  "dataset_sha256": "b693713a7fecaafd5cb868788a88c567d736ad72db541d4834d04da82ae740fd",
+  "environment": {
+    "docker_engine_sha256": "d9751c09d1a4e4806466f5b1ebce969f4e83491026ea0a5a0f6894810667a520",
+    "docker": {
+      "ServerVersion": "singularity-ce version 4.5.0-noble (no Docker daemon)",
+      "OSType": "linux",
+      "Architecture": "x86_64",
+      "NCPU": 40,
+      "MemTotal": 269790158848,
+      "KernelVersion": "6.8.0-151-generic"
+    }
+  },
+  "server_version": "26.10.3.7",
+  "source_run_id": "sf100"
+}

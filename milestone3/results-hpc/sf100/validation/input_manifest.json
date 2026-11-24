@@ -1,0 +1,152 @@
+{
+  "files": {
+    "call_center": {
+      "sha256": "9c66281adc2353b67e0548d9d6f06d6e3b08dc0e8986625d6d9dc14d095702a7",
+      "rows": 30,
+      "bytes": 9356
+    },
+    "catalog_page": {
+      "sha256": "8c572ce8add0d83b697c93b8c196cb894d1aa13e17d93b772ce57d8006fedf24",
+      "rows": 20400,
+      "bytes": 2857922
+    },
+    "catalog_returns": {
+      "sha256": "7dd32671841a4f48db5e70cb120590af7cea0d057b225371792cb9a4ec5b02f8",
+      "rows": 14404374,
+      "bytes": 2279840289
+    },
+    "catalog_sales": {
+      "sha256": "7f811b14e0e135bf2bc3e372f4a37e89bdfa14bc0c1d8f2d347f228af755aa52",
+      "rows": 143997065,
+      "bytes": 31016462258
+    },
+    "customer": {
+      "sha256": "7aea6766c804ecdd9cda1b11006ae0fc08c6914be0951dc21a7152d86472b5ec",
+      "rows": 2000000,
+      "bytes": 269534238
+    },
+    "customer_address": {
+      "sha256": "aa3fb70d643618b608ca2598d675d55dce955c45431af1a848b562ed39d6e9db",
+      "rows": 1000000,
+      "bytes": 111154196
+    },
+    "customer_demographics": {
+      "sha256": "8cbef8c4c6279289fd7417d19ff9ab920f951d1609e753cf8733f1f23de6d622",
+      "rows": 1920800,
+      "bytes": 80660096
+    },
+    "date_dim": {
+      "sha256": "db3965f52a5d3128eb0859ab913cd53e12658389f88ae0353b189a0fd8d593b5",
+      "rows": 73049,
+      "bytes": 10317438
+    },
+    "household_demographics": {
+      "sha256": "c0c4f83c22fb7982abd78fcfcbdbba2919e6e0a1f628e7592532dac649afb6d2",
+      "rows": 7200,
+      "bytes": 151653
+    },
+    "income_band": {
+      "sha256": "a337cf409fd50ea31298d706ba4c81d131c4de1c104f93f7700f5dc13b9e0b5f",
+      "rows": 20,
+      "bytes": 328
+    },
+    "inventory": {
+      "sha256": "c9b17ccc59678ba7cffb17cda428176a83224d7ea90541de34b93718c6c10d88",
+      "rows": 399330000,
+      "bytes": 8626269134
+    },
+    "item": {
+      "sha256": "da9ad52288a6334958516e270a7c90dd6fc671c39668f684e2dbfab42deaa27d",
+      "rows": 204000,
+      "bytes": 58366791
+    },
+    "promotion": {
+      "sha256": "6623bbf65f7009f053e123563d5f3a21056f4b6fcdedcf929fc52145b67ea39f",
+      "rows": 1000,
+      "bytes": 124973
+    },
+    "reason": {
+      "sha256": "e2071d27ebd3628a15be9f586c40981a5d75b8b2f88a4f1bc895fc419742483a",
+      "rows": 75,
+      "bytes": 2579
+    },
+    "ship_mode": {
+      "sha256": "c47fee0e93da3015945d980b0bb5407d22afaacc41e73e561896749eee43cdd5",
+      "rows": 20,
+      "bytes": 1113
+    },
+    "store": {
+      "sha256": "95d97afc0c2cfc45c912e11194a391bfeec01b6b46fff7e89db5ca48eb7afb48",
+      "rows": 402,
+      "bytes": 106820
+    },
+    "store_returns": {
+      "sha256": "c14691c65d06d450ed8a3bf587872bd91e64c2e8616d9ae456fdec399c84aad3",
+      "rows": 28795080,
+      "bytes": 3485083098
+    },
+    "store_sales": {
+      "sha256": "ea352daacffcdc7b7ee09312847080edc241fbf8968df2e0841317d17b1fae3f",
+      "rows": 287997024,
+      "bytes": 40959624908
+    },
+    "time_dim": {
+      "sha256": "190576a4cf641eb5b48f35b1874190f3c35a8813c834f88aee76a5fed9647c45",
+      "rows": 86400,
+      "bytes": 5107780
+    },
+    "warehouse": {
+      "sha256": "3232368dcae63ae5e41761938186e6e427c8a3af8d9c83dbe431411a8ce6d74d",
+      "rows": 15,
+      "bytes": 1782
+    },
+    "web_page": {
+      "sha256": "3c726754c91fe3b55af1987d08fd5d995a2f1f21ee7296cb625731d8bf0dda25",
+      "rows": 2040,
+      "bytes": 199049
+    },
+    "web_returns": {
+      "sha256": "96f83de401c35edc83ebb4a42d3fb921f0b4433faf9d6919ed1c79f223ecba79",
+      "rows": 7197670,
+      "bytes": 1053832196
+    },
+    "web_sales": {
+      "sha256": "abb27ae1b35f3320dcf258328cf88b01008317445a2e1fbbc25ea77641f23647",
+      "rows": 72001237,
+      "bytes": 15463513086
+    },
+    "web_site": {
+      "sha256": "e5730dac5e3df486333b0da885ee59692543011c62280255e490857c649468a9",
+      "rows": 24,
+      "bytes": 6874
+    }
+  },
+  "input_sha256": {
+    "call_center": "9c66281adc2353b67e0548d9d6f06d6e3b08dc0e8986625d6d9dc14d095702a7",
+    "catalog_page": "8c572ce8add0d83b697c93b8c196cb894d1aa13e17d93b772ce57d8006fedf24",
+    "catalog_returns": "7dd32671841a4f48db5e70cb120590af7cea0d057b225371792cb9a4ec5b02f8",
+    "catalog_sales": "7f811b14e0e135bf2bc3e372f4a37e89bdfa14bc0c1d8f2d347f228af755aa52",
+    "customer": "7aea6766c804ecdd9cda1b11006ae0fc08c6914be0951dc21a7152d86472b5ec",
+    "customer_address": "aa3fb70d643618b608ca2598d675d55dce955c45431af1a848b562ed39d6e9db",
+    "customer_demographics": "8cbef8c4c6279289fd7417d19ff9ab920f951d1609e753cf8733f1f23de6d622",
+    "date_dim": "db3965f52a5d3128eb0859ab913cd53e12658389f88ae0353b189a0fd8d593b5",
+    "household_demographics": "c0c4f83c22fb7982abd78fcfcbdbba2919e6e0a1f628e7592532dac649afb6d2",
+    "income_band": "a337cf409fd50ea31298d706ba4c81d131c4de1c104f93f7700f5dc13b9e0b5f",
+    "inventory": "c9b17ccc59678ba7cffb17cda428176a83224d7ea90541de34b93718c6c10d88",
+    "item": "da9ad52288a6334958516e270a7c90dd6fc671c39668f684e2dbfab42deaa27d",
+    "promotion": "6623bbf65f7009f053e123563d5f3a21056f4b6fcdedcf929fc52145b67ea39f",
+    "reason": "e2071d27ebd3628a15be9f586c40981a5d75b8b2f88a4f1bc895fc419742483a",
+    "ship_mode": "c47fee0e93da3015945d980b0bb5407d22afaacc41e73e561896749eee43cdd5",
+    "store": "95d97afc0c2cfc45c912e11194a391bfeec01b6b46fff7e89db5ca48eb7afb48",
+    "store_returns": "c14691c65d06d450ed8a3bf587872bd91e64c2e8616d9ae456fdec399c84aad3",
+    "store_sales": "ea352daacffcdc7b7ee09312847080edc241fbf8968df2e0841317d17b1fae3f",
+    "time_dim": "190576a4cf641eb5b48f35b1874190f3c35a8813c834f88aee76a5fed9647c45",
+    "warehouse": "3232368dcae63ae5e41761938186e6e427c8a3af8d9c83dbe431411a8ce6d74d",
+    "web_page": "3c726754c91fe3b55af1987d08fd5d995a2f1f21ee7296cb625731d8bf0dda25",
+    "web_returns": "96f83de401c35edc83ebb4a42d3fb921f0b4433faf9d6919ed1c79f223ecba79",
+    "web_sales": "abb27ae1b35f3320dcf258328cf88b01008317445a2e1fbbc25ea77641f23647",
+    "web_site": "e5730dac5e3df486333b0da885ee59692543011c62280255e490857c649468a9"
+  },
+  "dataset_sha256": "b693713a7fecaafd5cb868788a88c567d736ad72db541d4834d04da82ae740fd",
+  "metadata": "4.0.0|2026-11-24|03:41:04|-SCALE 100 -DIR /dev/shm/tpcds/state/volumes/raw-sf100 -PARALLEL 96 -CHILD 1 |"
+}

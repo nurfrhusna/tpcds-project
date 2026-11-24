@@ -1,0 +1,52 @@
+[
+  {
+    "name": "log_profile_events",
+    "value": "1",
+    "changed": 0
+  },
+  {
+    "name": "log_queries",
+    "value": "1",
+    "changed": 0
+  },
+  {
+    "name": "log_queries_probability",
+    "value": "1",
+    "changed": 0
+  },
+  {
+    "name": "log_query_settings",
+    "value": "1",
+    "changed": 0
+  },
+  {
+    "name": "max_execution_time",
+    "value": "0",
+    "changed": 0
+  },
+  {
+    "name": "max_memory_usage",
+    "value": "0",
+    "changed": 0
+  },
+  {
+    "name": "max_threads",
+    "value": "auto(40)",
+    "changed": 0
+  },
+  {
+    "name": "timeout_overflow_mode",
+    "value": "throw",
+    "changed": 0
+  },
+  {
+    "name": "use_query_cache",
+    "value": "0",
+    "changed": 0
+  },
+  {
+    "name": "use_query_condition_cache",
+    "value": "1",
+    "changed": 0
+  }
+]

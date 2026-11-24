@@ -1,0 +1,98 @@
+[
+  {
+    "table": "call_center",
+    "reference_rows": 24
+  },
+  {
+    "table": "catalog_page",
+    "reference_rows": 12000
+  },
+  {
+    "table": "catalog_returns",
+    "reference_rows": 1439749
+  },
+  {
+    "table": "catalog_sales",
+    "reference_rows": 14401261
+  },
+  {
+    "table": "customer",
+    "reference_rows": 500000
+  },
+  {
+    "table": "customer_address",
+    "reference_rows": 250000
+  },
+  {
+    "table": "customer_demographics",
+    "reference_rows": 1920800
+  },
+  {
+    "table": "date_dim",
+    "reference_rows": 73049
+  },
+  {
+    "table": "household_demographics",
+    "reference_rows": 7200
+  },
+  {
+    "table": "income_band",
+    "reference_rows": 20
+  },
+  {
+    "table": "inventory",
+    "reference_rows": 133110000
+  },
+  {
+    "table": "item",
+    "reference_rows": 102000
+  },
+  {
+    "table": "promotion",
+    "reference_rows": 500
+  },
+  {
+    "table": "reason",
+    "reference_rows": 75
+  },
+  {
+    "table": "ship_mode",
+    "reference_rows": 20
+  },
+  {
+    "table": "store",
+    "reference_rows": 102
+  },
+  {
+    "table": "store_returns",
+    "reference_rows": 2875432
+  },
+  {
+    "table": "store_sales",
+    "reference_rows": 28800991
+  },
+  {
+    "table": "time_dim",
+    "reference_rows": 86400
+  },
+  {
+    "table": "warehouse",
+    "reference_rows": 10
+  },
+  {
+    "table": "web_page",
+    "reference_rows": 200
+  },
+  {
+    "table": "web_returns",
+    "reference_rows": 719217
+  },
+  {
+    "table": "web_sales",
+    "reference_rows": 7197566
+  },
+  {
+    "table": "web_site",
+    "reference_rows": 42
+  }
+]

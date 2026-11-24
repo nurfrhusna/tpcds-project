@@ -1,0 +1,9 @@
+{
+  "image_name": "clickhouse/clickhouse-server:26.10.3.7",
+  "image_id": "sha256:739e099abd1157390960a59e4532d21781d8fde57e6e4151cb920ea02c30b1ce",
+  "nano_cpus": 32000000000,
+  "memory_bytes": 214748364800,
+  "memory_swap_bytes": 214748364800,
+  "network_mode": "host-loopback",
+  "dataset_sha256": "b693713a7fecaafd5cb868788a88c567d736ad72db541d4834d04da82ae740fd"
+}
