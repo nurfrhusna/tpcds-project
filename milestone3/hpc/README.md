@@ -7,7 +7,7 @@ accepts the Docker commands used by this project and runs the same images with S
 |---|---|
 | `docker` | Docker command adapter for Singularity. Put this folder first on `PATH`. |
 | `generate.sh`, `memfd_tables.py` | Generate the raw tables with parallel dsdgen chunks. Large SF100 tables are kept in anonymous memory files. |
-| `prepare_parallel.py` | Same checks as `prepare_volume.py`; large tables load in line-aligned 1 GiB ranges at the same time. |
+| `prepare_parallel.py` | Row count checks from `prepare_volume.py` (without its built-in SF1 hash check, which was done separately); large tables load in line-aligned 1 GiB ranges at the same time. |
 | `protocol.json` | `protocol.json` without container CPU and memory limits. Query settings, rounds and seed are unchanged. |
 | `run_controlled.py` | `run_controlled.py` with one changed line: the container limit check is skipped when the protocol sets no limit. |
 
