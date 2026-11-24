@@ -58,15 +58,37 @@ The SQL comes from the [ClickHouse TPC-DS query collection](https://github.com/C
 
 ## 3. Results
 
-Charts are made by [`codes/plot_results.py`](codes/plot_results.py) from `milestone3/results/scaling_summary.csv`.
-Each bar is the median of seven measured runs. The current charts come from the SF1 and SF10 laptop run in [`milestone3/RESULTS.md`](../milestone3/RESULTS.md).
+Charts are made by [`codes/plot_results.py`](codes/plot_results.py) from a `scaling_summary.csv` file.
+Each bar is the median of seven measured runs. The script plots every scale factor it finds in the file.
+
+| Charts | Summary file | Run |
+|---|---|---|
+| [`figures/hpc-nolimit`](figures/hpc-nolimit) | `milestone3/results-hpc-nolimit` | Colgate University Supercomputer, no limits (used in the report) |
+| [`figures/hpc`](figures/hpc) | `milestone3/results-hpc` | Colgate University Supercomputer, 4 threads, 6 GiB and 300 s per query |
+| [`figures`](figures) | `milestone3/results` | Laptop, SF1 and SF10, 4 CPUs and 8 GiB |
 
 ```text
+uv run --with matplotlib python codes/plot_results.py --summary ../milestone3/results-hpc-nolimit/scaling_summary.csv --output figures/hpc-nolimit --note " (Colgate Supercomputer)"
 uv run --with matplotlib python codes/plot_results.py --note " (laptop run)"
 ```
 
-To plot a new run, pass its summary file, for example `--summary ../milestone3/results-new/scaling_summary.csv`.
-The script plots every scale factor it finds in the file, so SF100 appears as a third bar once it is collected.
+### 3.1 Colgate University Supercomputer (SF1, SF10, SF100)
+
+<div align="center">
+  <img src="figures/hpc-nolimit/runtime.png" alt="Median runtime per query at SF1, SF10 and SF100" width="80%"/>
+</div>
+
+<div align="center">
+  <img src="figures/hpc-nolimit/runtime_ratio.png" alt="Runtime ratio for each 10x step in scale factor per query" width="80%"/>
+</div>
+
+| Memory | CPU time | Logical reads |
+|---|---|---|
+| ![Memory](figures/hpc-nolimit/memory.png) | ![CPU time](figures/hpc-nolimit/cpu_time.png) | ![Logical reads](figures/hpc-nolimit/logical_reads.png) |
+
+Setup notes are in [`../milestone3/hpc/README.md`](../milestone3/hpc/README.md).
+
+### 3.2 Laptop (SF1, SF10)
 
 <div align="center">
   <img src="figures/runtime.png" alt="Median runtime per query at SF1 and SF10" width="80%"/>
@@ -79,6 +101,8 @@ The script plots every scale factor it finds in the file, so SF100 appears as a 
 | Memory | CPU time | Logical reads |
 |---|---|---|
 | ![Memory](figures/memory.png) | ![CPU time](figures/cpu_time.png) | ![Logical reads](figures/logical_reads.png) |
+
+Full tables are in [`../milestone3/RESULTS.md`](../milestone3/RESULTS.md).
 
 ## 4. SF1 Setup (Milestone 2 workflow)
 
@@ -140,7 +164,7 @@ The schema uses ClickHouse MergeTree tables.
 
 The `date_dim.d_date` column uses `Date32` to support historical dates before 1970.
 
-**Important:** The initialization script has passed a PowerShell syntax check, but its complete execution has not yet been independently validated on a clean installation.
+**Important:** The initialization script has passed a PowerShell syntax check. It has not been run from start to finish on a clean installation.
 
 The existing populated local database should not be deleted or replaced for setup testing.
 
@@ -172,7 +196,7 @@ The `dbgen_version.dat` metadata file is not imported as a database table.
 
 The toolkit source code and generated data files are not included in this GitHub repository.
 
-**Note:** Exact toolkit build commands and dataset-generation instructions for a fresh machine are still being documented.
+**Note:** Toolkit build and data generation commands are in [`../milestone3/README.md`](../milestone3/README.md).
 
 ### 4.5 Import Data into ClickHouse
 
@@ -237,7 +261,7 @@ The benchmark runner has been tested locally with:
 - One execution per query (6 total executions)
 - Three executions per query (18 total executions)
 
-Both preliminary benchmark runs completed successfully.
+Both benchmark runs completed successfully.
 
 Repeated executions may benefit from warmed caches. These measurements should not be interpreted as controlled cold-cache experiments.
 
@@ -258,11 +282,11 @@ The benchmark also records the query name, run number, and unique query ID.
 **Important measurement limitations:**
 
 - `read_bytes` does not directly measure physical disk I/O.
-- The current benchmark runner does not directly measure CPU utilization.
-- Physical disk throughput is not currently collected.
+- This benchmark runner does not measure CPU time.
+- Physical disk throughput is not collected.
 - Query execution times may be affected by caching and background system activity.
 
-Additional measurements are required to investigate CPU-intensive and I/O-intensive query behavior.
+The Milestone 3 runner in [`../milestone3`](../milestone3/README.md) also records CPU time and repeats each query in controlled warm-up and measured rounds.
 
 ### 4.8 Benchmark Limitations
 
@@ -278,8 +302,8 @@ Performance can vary due to:
 
 Repeated executions may benefit from warmed caches.
 
-The current benchmark implementation focuses on execution time, logical data reads, and reported memory usage.
+This benchmark runner measures execution time, logical data reads, and reported memory usage.
 
-It does not yet provide comprehensive CPU utilization or physical disk I/O measurements.
+It does not measure CPU time or physical disk I/O.
 
 The results should not be presented as official, fully compliant TPC-DS benchmark scores.
